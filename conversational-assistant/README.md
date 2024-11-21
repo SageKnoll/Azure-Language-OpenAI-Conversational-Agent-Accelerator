@@ -49,11 +49,12 @@ python demo.py
 - `CQA`: Route to CQA runtime only.
 - `ORCHESTRATION`: Route to either CQA or CLU runtime using an Azure AI Language [Orchestration](https://learn.microsoft.com/en-us/azure/ai-services/language-service/orchestration-workflow/overview) project to decide. 
 
-In any case, the fallback function is called if routing "failed". `CLU` route is considered "failed" is confidence threshold is not met or no intent is recognized. `CQA` route is considered "failed" if confidence threhsold is not met or no answer is found. `ORCHESTRATION` and `FUNCTION_CALLING` routes depend on the return value of the runtime they call.
+In any case, the fallback function is called if routing "failed". `CLU` route is considered "failed" is confidence threshold is not met or no intent is recognized. `CQA` route is considered "failed" if confidence threhsold is not met or no answer is found. `ORCHESTRATION` route depends on the return value of the runtime it calls.
 
 ### Planned Updates:
 - Add minimal demo chat UI.
 - Integrate LLMs in demo/routing experience.
+- Add PII redaction support for LLM calls.
 
 ### Third-Party Dependencies:
 This projects makes use of the following third-party OSS Python packages:
