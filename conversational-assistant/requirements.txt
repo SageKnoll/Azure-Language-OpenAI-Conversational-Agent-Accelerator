@@ -1,0 +1,4 @@
+requests
+azure-ai-textanalytics
+azure-identity
+python-dotenv
