@@ -4,7 +4,7 @@ This repo hosts a variety of code-first samples illustrating the benefits of usi
 
 | Sample | Description |
 | ------ | ----------- |
-| [conversational-assistant](tree/main/conversational-assistant) | A sample demonstrating how to augment  chat solutions with deterministic, human-controllable workflows using Azure AI Language and Azure OpenAI |
+| [conversational-assistant](conversational-assistant) | A sample demonstrating how to augment  chat solutions with deterministic, human-controllable workflows using Azure AI Language and Azure OpenAI |
 | |more samples to come|
 
 ## Resources:
