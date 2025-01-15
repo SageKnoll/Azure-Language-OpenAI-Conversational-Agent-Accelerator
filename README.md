@@ -4,7 +4,8 @@ This repo hosts a variety of code-first samples illustrating the benefits of usi
 
 | Sample | Description |
 | ------ | ----------- |
-| `conversational-assistant` | A sample demonstrating how to augment existing chat solutions with Azure AI Language `CLU` & `CQA` functionality. |
+| [conversational-assistant](tree/main/conversational-assistant) | A sample demonstrating how to augment  chat solutions with deterministic, human-controllable workflows using Azure AI Language and Azure OpenAI |
+| |more samples to come|
 
 ## Resources:
 - [What is Azure AI Language?](https://learn.microsoft.com/en-us/azure/ai-services/language-service/overview)
