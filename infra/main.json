@@ -1,0 +1,18 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "gpt_model_name": {
+      "value": "gpt-4o-mini"
+    },
+    "gpt_deployment_capacity": {
+      "value": 20
+    },
+    "embedding_model_name": {
+      "value": "text-embedding-ada-002"
+    },
+    "embedding_deployment_capacity": {
+      "value": 20
+    }
+  }
+}
