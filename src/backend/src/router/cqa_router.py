@@ -3,8 +3,8 @@
 import os
 import logging
 from typing import Callable
-from azure.identity import DefaultAzureCredential
 from azure.ai.language.questionanswering import QuestionAnsweringClient
+from utils import get_azure_credential
 
 _logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ def create_cqa_router() -> Callable[[str, str, str], dict]:
     project_name = os.environ['CQA_PROJECT_NAME']
     deployment_name = os.environ['CQA_DEPLOYMENT_NAME']
     endpoint = os.environ['LANGUAGE_ENDPOINT']
-    credential = DefaultAzureCredential()
+    credential = get_azure_credential()
     client = QuestionAnsweringClient(endpoint, credential)
 
     def call_runtime(

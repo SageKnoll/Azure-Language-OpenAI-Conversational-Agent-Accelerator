@@ -6,12 +6,12 @@ import logging
 import pii_redacter
 from typing import Callable
 from azure.core.rest import HttpRequest
-from azure.identity import DefaultAzureCredential
 from azure.ai.language.conversations.authoring import ConversationAuthoringClient
 from azure.ai.language.questionanswering.authoring import AuthoringClient
 from aoai_client import AOAIClient, get_prompt
 from router.clu_router import create_clu_router
 from router.cqa_router import create_cqa_router
+from utils import get_azure_credential
 
 _logger = logging.getLogger(__name__)
 
@@ -38,7 +38,7 @@ def get_clu_intents() -> list[str]:
     """
     project_name = os.environ['CLU_PROJECT_NAME']
     endpoint = os.environ['LANGUAGE_ENDPOINT']
-    credential = DefaultAzureCredential()
+    credential = get_azure_credential()
     client = ConversationAuthoringClient(endpoint, credential)
 
     try:
@@ -72,7 +72,7 @@ def get_cqa_questions() -> list[str]:
     """
     project_name = os.environ['CQA_PROJECT_NAME']
     endpoint = os.environ['LANGUAGE_ENDPOINT']
-    credential = DefaultAzureCredential()
+    credential = get_azure_credential()
     client = AuthoringClient(endpoint, credential)
 
     try:

@@ -3,8 +3,8 @@
 import os
 import logging
 from typing import Callable
-from azure.identity import DefaultAzureCredential
 from azure.ai.language.conversations import ConversationAnalysisClient
+from utils import get_azure_credential
 
 _logger = logging.getLogger(__name__)
 
@@ -16,7 +16,7 @@ def create_clu_router() -> Callable[[str, str, str], dict]:
     project_name = os.environ['CLU_PROJECT_NAME']
     deployment_name = os.environ['CLU_DEPLOYMENT_NAME']
     endpoint = os.environ['LANGUAGE_ENDPOINT']
-    credential = DefaultAzureCredential()
+    credential = get_azure_credential()
     client = ConversationAnalysisClient(endpoint, credential)
 
     def create_input(

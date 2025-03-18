@@ -3,10 +3,10 @@
 import os
 import uuid
 from typing import Callable
-from azure.identity import DefaultAzureCredential
 from azure.ai.textanalytics import TextAnalyticsClient
 from router.router_type import RouterType
 from router.router_utils import create_router
+from utils import get_azure_credential
 
 
 class UnifiedConversationOrchestrator():
@@ -26,7 +26,7 @@ class UnifiedConversationOrchestrator():
         """
         self.ta_client = TextAnalyticsClient(
             endpoint=os.environ.get("LANGUAGE_ENDPOINT"),
-            credential=DefaultAzureCredential()
+            credential=get_azure_credential()
         )
 
         # Router is Callable[[str, str, str], dict]:

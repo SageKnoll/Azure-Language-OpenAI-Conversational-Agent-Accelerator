@@ -10,7 +10,7 @@ COPY frontend/index.html /app
 RUN npm install
 RUN npm run build
 
-FROM mcr.microsoft.com/azurelinux/base/python:3 AS build-app
+FROM mcr.microsoft.com/azurelinux/base/python:3
 
 WORKDIR /app
 
@@ -21,12 +21,6 @@ COPY backend/requirements.txt /app
 
 RUN pip install -r requirements.txt
 
-FROM mcr.microsoft.com/azure-cli:cbl-mariner2.0
-
-WORKDIR /app
-
-COPY --from=build-app /app /app
-
 EXPOSE 7000
 
-CMD az login --identity && flask --app server run --host=0.0.0.0 --port 7000
+CMD flask --app server run --host=0.0.0.0 --port 7000

@@ -6,11 +6,11 @@ import importlib
 import pii_redacter
 from json import JSONDecodeError
 from flask import Flask, request, jsonify, render_template
-from azure.identity import DefaultAzureCredential
 from azure.search.documents import SearchClient
 from aoai_client import AOAIClient, get_prompt
 from router.router_type import RouterType
 from unified_conversation_orchestrator import UnifiedConversationOrchestrator
+from utils import get_azure_credential
 
 # Flask server:
 app = Flask(__name__, static_url_path='',
@@ -21,7 +21,7 @@ app = Flask(__name__, static_url_path='',
 search_client = SearchClient(
     endpoint=os.environ.get("SEARCH_ENDPOINT"),
     index_name=os.environ.get("SEARCH_INDEX_NAME"),
-    credential=DefaultAzureCredential()
+    credential=get_azure_credential()
 )
 rag_client = AOAIClient(
     endpoint=os.environ.get("AOAI_ENDPOINT"),

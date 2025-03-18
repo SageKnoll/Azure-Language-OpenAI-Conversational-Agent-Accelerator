@@ -5,10 +5,10 @@ import json
 from typing import Callable
 from openai import AzureOpenAI
 from azure.core.credentials import TokenCredential
-from azure.identity import DefaultAzureCredential, get_bearer_token_provider
+from azure.identity import get_bearer_token_provider
 from azure.search.documents import SearchClient
 from azure.search.documents.models import VectorizableTextQuery
-
+from utils import get_azure_credential
 
 def get_prompt(
     prompt: str,
@@ -49,7 +49,7 @@ class AOAIClient(AzureOpenAI):
     ) -> None:
         self.logger = logging.getLogger(self.__class__.__name__)
         if not azure_credential:
-            azure_credential = DefaultAzureCredential()
+            azure_credential = get_azure_credential()
         token_provider = get_bearer_token_provider(azure_credential, scope)
         AzureOpenAI.__init__(
             self,

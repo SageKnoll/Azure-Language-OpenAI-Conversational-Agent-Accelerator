@@ -2,8 +2,8 @@
 # Licensed under the MIT License.
 import os
 import logging
-from azure.identity import DefaultAzureCredential
 from azure.ai.textanalytics import TextAnalyticsClient
+from utils import get_azure_credential
 
 """
 Azure AI Language PII recognition, redaction, and reconstruction.
@@ -13,7 +13,7 @@ CATEGORIES = os.environ.get("PII_CATEGORIES", "").upper().split(",")
 CONFIDENCE_THRESHOLD = float(os.environ.get("PII_CONFIDENCE_THRESHOLD", "0.5"))
 TA_CLIENT = TextAnalyticsClient(
     endpoint=os.environ.get("LANGUAGE_ENDPOINT"),
-    credential=DefaultAzureCredential()
+    credential=get_azure_credential()
 )
 
 entity_id = 0
