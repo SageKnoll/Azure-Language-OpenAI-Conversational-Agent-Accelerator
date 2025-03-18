@@ -5,24 +5,26 @@ param name string = 'oai-${uniqueString(resourceGroup().id)}'
 param location string = resourceGroup().location
 
 @description('Name of GPT model deployment.')
-param gpt_deployment_name string = 'gpt-4o-mini'
+param gpt_deployment_name string = gpt_model_name
 @description('Capacity of GPT model deployment.')
 param gpt_deployment_capacity int = 20
 @description('Name of GPT model to deploy.')
-param gpt_model string = 'gpt-4o-mini'
+param gpt_model_name string = 'gpt-4o-mini'
 @description('Model version of GPT model to deploy.')
 param gpt_model_version string = '2024-07-18'
 
 @description('Name of embedding model deployment.')
-param embedding_deployment_name string = 'text-embedding-ada-002'
+param embedding_deployment_name string = embedding_model_name
 @description('Capacity of embedding model deployment.')
 param embedding_deployment_capacity int = 20
 @description('Name of embedding model to deploy.')
-param embedding_model string = 'text-embedding-ada-002'
+param embedding_model_name string = 'text-embedding-ada-002'
 @description('Model version of embedding model to deploy.')
 param embedding_model_version string = '2'
 @description('Model dimensions of embedding model to deploy.')
 param embedding_model_dimensions int = 1536
+
+param gpt_deployment_type string
 
 resource openai_service 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
   name: name
@@ -49,12 +51,12 @@ resource openai_service 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
     properties: {
       model: {
         format: 'OpenAI'
-        name: gpt_model
+        name: gpt_model_name
         version: gpt_model_version
       }
     }
     sku: {
-      name: 'Standard'
+      name: gpt_deployment_type
       capacity: gpt_deployment_capacity
     }
   }
@@ -64,7 +66,7 @@ resource openai_service 'Microsoft.CognitiveServices/accounts@2024-10-01' = {
     properties: {
       model: {
         format: 'OpenAI'
-        name: embedding_model
+        name: embedding_model_name
         version: embedding_model_version
       }
     }

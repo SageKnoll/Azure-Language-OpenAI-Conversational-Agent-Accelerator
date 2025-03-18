@@ -1,12 +1,35 @@
 // ========== main.bicep ========== //
 targetScope = 'resourceGroup'
 
-// TODO: random vars
+@description('GPT model deployment type.')
+@allowed([
+  'Standard'
+  'GlobalStandard'
+])
+param gpt_deployment_type string = 'GlobalStandard'
 
-// TODO update
-// TODO: finalize
-var base_url = 'https://raw.githubusercontent.com/murraysean/azure-language-openai-accelerators/murraysean/ai-foundry-templates/conversational-assistant/'
-var clone_url = 'https://github.com/murraysean/azure-language-openai-accelerators.git'
+@description('Name of GPT model to deploy.')
+@allowed([
+  'gpt-4o-mini'
+  'gpt-4o'
+  'gpt-4'
+])
+param gpt_model_name string = 'gpt-4o-mini'
+
+@description('Capacity of GPT model deployment.')
+param gpt_deployment_capacity int = 20
+
+@description('Name of Embedding model to deploy.')
+@allowed([
+  'text-embedding-ada-002'
+])
+param embedding_model_name string = 'text-embedding-ada-002'
+
+@description('Capacity of embedding model deployment.')
+param embedding_deployment_capacity int = 20
+
+var base_url = 'https://raw.githubusercontent.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator/main/'
+var clone_url = 'https://github.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator.git'
 
 // Deploy resources:
 module container_registry 'resources/container_registry.bicep' = {
@@ -19,6 +42,13 @@ module storage_account 'resources/storage_account.bicep' = {
 
 module openai_service 'resources/openai_service.bicep' = {
   name: 'deploy_openai_service'
+  params: {
+    gpt_model_name: gpt_model_name
+    gpt_deployment_capacity: gpt_deployment_capacity
+    embedding_model_name: embedding_model_name
+    embedding_deployment_capacity: embedding_deployment_capacity
+    gpt_deployment_type: gpt_deployment_type
+  }
 }
 
 module search_service 'resources/search_service.bicep' = {

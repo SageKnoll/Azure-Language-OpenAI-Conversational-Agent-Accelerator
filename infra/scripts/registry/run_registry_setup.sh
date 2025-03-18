@@ -16,9 +16,7 @@ tag=$4
 if [ $is_local_setup = "false" ]; then
     clone_url=$5
     echo "Cloning repo..."
-    # TODO: update...
-    git clone ${clone_url} --branch murraysean/templates --single-branch repo_src
-    # TODO: update...
+    git clone ${clone_url} --single-branch repo_src
     cd repo_src
     # Authenticate with MI:
     echo "Authenticating..."

@@ -159,6 +159,14 @@ resource conv_agent_app 'Microsoft.App/containerApps@2024-10-02-preview' = {
               name: 'ROUTER_TYPE'
               value: router_type
             }
+            {
+              name: 'USE_MI_AUTH'
+              value: 'true'
+            }
+            {
+              name: 'MI_CLIENT_ID'
+              value: managed_identity.properties.clientId
+            }
           ]
           image: image
           imageType: 'ContainerImage'
