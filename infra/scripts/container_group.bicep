@@ -50,7 +50,7 @@ resource container_group 'Microsoft.ContainerInstance/containerGroups@2024-11-01
   properties: {
     containers: [
       {
-        name: 'language_setup'
+        name: 'run_setup'
         properties: {
           image: 'mcr.microsoft.com/azure-cli:cbl-mariner2.0'
           command: [
@@ -58,6 +58,8 @@ resource container_group 'Microsoft.ContainerInstance/containerGroups@2024-11-01
             'tdnf install -y git'
             'git clone ${repo_clone_url} --branch murraysean/update-scripts --single-branch repo_src && cd repo_src' // TODO: need to update reference to fork, then back to repo
             'bash infra/scripts/language/run_language_setup.sh'
+            'bash infra/scripts/search/run_search_setup.sh ${storage_account_name} ${blob_container_name}'
+            'bash infra/scripts/registry/run_registry_setup.sh ${acr_name} ${repo} ${tag}'
             'exit'
           ]
           environmentVariables: [
@@ -97,27 +99,6 @@ resource container_group 'Microsoft.ContainerInstance/containerGroups@2024-11-01
               name: 'ORCHESTRATION_DEPLOYMENT_NAME'
               value: orchestration_deployment_name
             }
-          ]
-          resources: {
-            requests: {
-              cpu: 1
-              memoryInGB: 1
-            }
-          }
-        }
-      }
-      {
-        name: 'search_setup'
-        properties: {
-          image: 'mcr.microsoft.com/azure-cli:cbl-mariner2.0'
-          command: [
-            'az login --identity'
-            'tdnf install -y git'
-            'git clone ${repo_clone_url} --branch murraysean/update-scripts --single-branch repo_src && cd repo_src' // TODO: need to update reference to fork, then back to repo
-            'bash infra/scripts/search/run_search_setup.sh ${storage_account_name} ${blob_container_name}'
-            'exit'
-          ]
-          environmentVariables: [
             {
               name: 'AOAI_ENDPOINT'
               value: aoai_endpoint
@@ -150,25 +131,6 @@ resource container_group 'Microsoft.ContainerInstance/containerGroups@2024-11-01
               name: 'SEARCH_INDEX_NAME'
               value: search_index_name
             }
-          ]
-          resources: {
-            requests: {
-              cpu: 1
-              memoryInGB: 1
-            }
-          }
-        }
-      }
-      {
-        name: 'registry_setup'
-        properties: {
-          image: 'mcr.microsoft.com/azure-cli:cbl-mariner2.0'
-          command: [
-            'az login --identity'
-            'tdnf install -y git'
-            'git clone ${repo_clone_url} --branch murraysean/update-scripts --single-branch repo_src && cd repo_src' // TODO: need to update reference to fork, then back to repo
-            'bash infra/scripts/registry/run_registry_setup.sh ${acr_name} ${repo} ${tag}'
-            'exit'
           ]
           resources: {
             requests: {
