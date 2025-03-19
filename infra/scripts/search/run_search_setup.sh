@@ -8,26 +8,11 @@ SCRIPT_DIR=$(dirname $(realpath "$0"))
 cd ${SCRIPT_DIR}
 
 # Arguments:
-is_local_setup=$1
-storage_account_name=$2
-blob_container_name=$3
+storage_account_name=$1
+blob_container_name=$2
 
-if [ $is_local_setup = "false" ]; then
-    base_url=$4
-    echo "Downloading dependencies..."
-    # Scripts:
-    curl --output "index_setup.py" ${base_url}"infra/scripts/search/index_setup.py"
-    # Requirements:
-    curl --output "requirements.txt" ${base_url}"infra/scripts/search/requirements.txt"
-    # Data:
-    curl --output "product_info.tar.gz" ${base_url}"infra/data/product_info.tar.gz"
-    # Authenticate with MI:
-    echo "Authenticating..."
-    az login --identity
-else
-    # Fetch data:
-    cp ../../data/${PRODUCT_INFO_FILE} .
-fi
+# Fetch data:
+cp ../../data/${PRODUCT_INFO_FILE} .
 
 # Unzip data:
 mkdir product_info && mv ${PRODUCT_INFO_FILE} product_info/
@@ -43,10 +28,10 @@ az storage blob upload-batch \
     --overwrite
 
 echo "Installing requirements..."
-pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 
 echo "Running index setup..."
-python index_setup.py
+python3 index_setup.py
 
 # Cleanup:
 rm -rf product_info/

@@ -1,4 +1,4 @@
-# Conversational-Assistant: Search Index Setup
+# Conversational-Agent: Search Index Setup
 
 ## Environment Variables
 Expected environment variables:
@@ -18,5 +18,5 @@ SEARCH_INDEX_NAME=<search-index-name>
 ## Running Setup (local)
 ```
 az login
-bash run_search_setup.sh true <storage-account-name> <blob-container-name>
+bash run_search_setup.sh <storage-account-name> <blob-container-name>
 ```

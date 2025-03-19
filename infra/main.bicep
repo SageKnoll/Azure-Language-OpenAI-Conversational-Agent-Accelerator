@@ -28,8 +28,8 @@ param embedding_model_name string = 'text-embedding-ada-002'
 @description('Capacity of embedding model deployment.')
 param embedding_deployment_capacity int = 20
 
-var base_url = 'https://raw.githubusercontent.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator/main/'
-var clone_url = 'https://github.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator.git'
+//var repo_clone_url = 'https://github.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator.git'
+var repo_clone_url = 'https://github.com/murraysean/Azure-Language-OpenAI-Conversational-Agent-Accelerator.git'
 
 // Deploy resources:
 module container_registry 'resources/container_registry.bicep' = {
@@ -78,38 +78,21 @@ module managed_identity 'resources/managed_identity.bicep' = {
 }
 
 // Deploy scripts:
-module language_setup 'scripts/language_setup_script.bicep' = {
-  name: 'run_language_setup'
+module container_group 'scripts/container_group.bicep' = {
+  name: 'run_data_plane_scripts'
   params: {
-    base_url: base_url
-    language_endpoint: language_service.outputs.endpoint
-    managed_identity_name: managed_identity.outputs.name
-  }
-}
-
-module search_setup 'scripts/search_setup_script.bicep' = {
-  name: 'run_search_setup'
-  params: {
-    base_url: base_url
-    blob_container_name: storage_account.outputs.blob_container_name
+    acr_name: container_registry.outputs.name
     aoai_endpoint: openai_service.outputs.endpoint
+    blob_container_name: storage_account.outputs.blob_container_name
     embedding_deployment_name: openai_service.outputs.embedding_deployment_name
     embedding_model_dimensions: openai_service.outputs.embedding_model_dimensions
     embedding_model_name: openai_service.outputs.embedding_model_name
+    language_endpoint: language_service.outputs.endpoint
     managed_identity_name: managed_identity.outputs.name
+    repo_clone_url: repo_clone_url
     search_endpoint: search_service.outputs.endpoint
     storage_account_connection_string: storage_account.outputs.connection_string
     storage_account_name: storage_account.outputs.name
-  }
-}
-
-module registry_setup 'scripts/registry_setup_script.bicep' = {
-  name: 'run_registry_setup'
-  params: {
-    acr_name: container_registry.outputs.name
-    base_url: base_url
-    clone_url: clone_url
-    managed_identity_name: managed_identity.outputs.name
   }
 }
 
@@ -120,17 +103,17 @@ module container_app 'resources/container_app.bicep' = {
     acr_name: container_registry.outputs.name
     aoai_deployment: openai_service.outputs.gpt_deployment_name
     aoai_endpoint: openai_service.outputs.endpoint
-    clu_deployment_name: language_setup.outputs.clu_deployment_name
-    clu_project_name: language_setup.outputs.clu_project_name
-    cqa_deployment_name: language_setup.outputs.cqa_deployment_name
-    cqa_project_name: language_setup.outputs.cqa_project_name
-    image: registry_setup.outputs.image
+    clu_deployment_name: container_group.outputs.clu_deployment_name
+    clu_project_name: container_group.outputs.clu_project_name
+    cqa_deployment_name: container_group.outputs.cqa_deployment_name
+    cqa_project_name: container_group.outputs.cqa_project_name
+    image: container_group.outputs.image
     language_endpoint: language_service.outputs.endpoint
     managed_identity_name: managed_identity.outputs.name
-    orchestration_deployment_name: language_setup.outputs.orchestration_deployment_name
-    orchestration_project_name: language_setup.outputs.orchestration_project_name
+    orchestration_deployment_name: container_group.outputs.orchestration_deployment_name
+    orchestration_project_name: container_group.outputs.orchestration_project_name
     search_endpoint: search_service.outputs.endpoint
-    search_index_name: search_setup.outputs.search_index_name
+    search_index_name: container_group.outputs.search_index_name
   }
 }
 
