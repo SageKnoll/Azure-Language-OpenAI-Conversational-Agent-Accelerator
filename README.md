@@ -1,20 +1,20 @@
 # Azure Language OpenAI Conversational Agent Accelerator
+| [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) | [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FAzure-Language-OpenAI-Conversational-Agent-Accelerator%2Fmain%2Finfra%2Fmain.json) |
+|---|---|---|
 
-MENU: [**USER STORY**](#user-story) \| [**QUICK DEPLOY**](#quick-deploy)  \| [**SUPPORTING DOCUMENTATION**](#supporting-documentation) 
-
-<h2><img src="./docs/images/user_story.png" width="64">
-<br/>
-User story
-</h2>
-
-### Overview
 This solution accelerator provides users with a code-first example on how to augment an existing `RAG` solution with Azure AI Language functionality. It leverages Conversational Language Understanding (`CLU`) and Custom Question Answering (`CQA`) to dynamically improve a `RAG` chat experience. 
 
 **Harness the capabilities of Azure AI Language and Azure OpenAI together.**
 
-Below is an image of the solution accelerator:
+#### Jump to: [Features](#features) • [Gettting Started](#getting-started) • [Guidance](#guidance)
 
 ![image](./docs/images/ui.png)
+
+## Important Security Notice
+
+This template, the application code and configuration it contains, has been built to showcase Microsoft Azure specific services and tools. We strongly advise our customers not to make this code part of their production environments without implementing or enabling additional security features.
+
+## Features
 
 ### Use Case / Scenario
 A typical `RAG` solution allows users to chat with an AI assistant and obtained grounded responses. Chat messages are sent directly to AOAI, where a specified model (e.g. GPT-4o) processes each message and creates a response.
@@ -74,10 +74,12 @@ This displays the "better together" story when using Azure AI Language and Azure
 
 In any case, the fallback function is called if routing "failed". `CLU` route is considered "failed" is confidence threshold is not met or no intent is recognized. `CQA` route is considered "failed" if confidence threhsold is not met or no answer is found. `ORCHESTRATION` and `FUNCTION_CALLING` routes depend on the return value of the runtime they call.
 
-<h2><img src="./docs/images/quick_deploy.png" width="64">
+## Getting Started
+
+<h3><img src="./docs/images/quick_deploy.png" width="64">
 <br/>
 QUICK DEPLOY
-</h2>
+</h3>
 
 | [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) | [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FAzure-Language-OpenAI-Conversational-Agent-Accelerator%2Fmain%2Finfra%2Fmain.json) |
 |---|---|---|
@@ -117,6 +119,8 @@ To adjust quota settings, follow these [steps](./docs/check_quota_settings.md)
 
 ### Deployment Options
 Pick from the options below to see step-by-step instructions for: GitHub Codespaces, VS Code Dev Containers, Local Environments, and Bicep deployments.
+
+**Note:** you do not need to directly `git clone` this repo. The options below include obtaining the source code.
 
 <details>
   <summary><b>Deploy in GitHub Codespaces</b></summary>
@@ -224,10 +228,7 @@ To change the azd parameters from the default values, follow the steps [here](./
 6. You can now delete the resources by running `azd down`, if you are done trying out the application. 
 <!-- 6. You can now proceed to run the [development server](#development-server) to test the app locally, or if you are done trying out the app, you can delete the resources by running `azd down`. -->
 
-<h2>
-Additional Steps
-</h2>
-
+### Additional Steps
 
 1. **Add App Authentication**
    
@@ -237,7 +238,7 @@ Additional Steps
 
      Follow steps in [Delete Resource Group](./docs/delete_resource_group.md) If your deployment fails and you need to clean up the resources.
 
-## Sample Questions
+### Sample Questions
 
 To help you get started, here are some **Sample Questions** you can ask in the app:
 
@@ -246,16 +247,11 @@ To help you get started, here are some **Sample Questions** you can ask in the a
 - What tents are recommended for winter?
 - What boots do you sell?
 
-<h2>
-Responsible AI Transparency FAQ 
-</h2>
+## Guidance
+
+### Responsible AI Transparency FAQ 
 
 Please refer to [Transparency FAQ](./RAI_FAQ.md) for responsible AI transparency details of this solution accelerator.
-
-
-<h2>
-Supporting documentation
-</h2>
 
 ### Costs
 
@@ -275,19 +271,18 @@ You can try the [Azure pricing calculator](https://azure.microsoft.com/en-us/pri
 ⚠️ To avoid unnecessary costs, remember to take down your app if it's no longer in use,
 either by deleting the resource group in the Portal or running `azd down`.
 
-### Security guidelines
+### Security
+This template uses [Managed Identity](https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview) to eliminate the need for developers to manage credentials.
 
-This template uses [Managed Identity](https://learn.microsoft.com/entra/identity/managed-identities-azure-resources/overview) for local development and deployment.
-
-To ensure continued best practices in your own repository, we recommend that anyone creating solutions based on our templates ensure that the [Github secret scanning](https://docs.github.com/code-security/secret-scanning/about-secret-scanning) setting is enabled.
+To ensure continued best practices in your own repository, we recommend that anyone creating solutions based on our templates ensure that [Github secret scanning](https://docs.github.com/code-security/secret-scanning/about-secret-scanning) setting is enabled.
 
 You may want to consider additional security measures, such as:
 
 * Enabling Microsoft Defender for Cloud to [secure your Azure resources](https://learn.microsoft.com/azure/security-center/defender-for-cloud).
 * Protecting the Azure Container Apps instance with a [firewall](https://learn.microsoft.com/azure/container-apps/waf-app-gateway) and/or [Virtual Network](https://learn.microsoft.com/azure/container-apps/networking?tabs=workload-profiles-env%2Cazure-cli).
 
-### Additional resources
-
+## Resources
+Supporting documentation:
 - [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)
 - [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/) 
 - [Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/overview)
@@ -296,7 +291,6 @@ You may want to consider additional security measures, such as:
 - [CQA](https://learn.microsoft.com/en-us/azure/ai-services/language-service/question-answering/overview)
 
 ## Disclaimers
-
 To the extent that the Software includes components or code used in or derived from Microsoft products or services, including without limitation Microsoft Azure Services (collectively, “Microsoft Products and Services”), you must also comply with the Product Terms applicable to such Microsoft Products and Services. You acknowledge and agree that the license governing the Software does not grant you a license or other right to use Microsoft Products and Services. Nothing in the license or this ReadMe file will serve to supersede, amend, terminate or modify any terms in the Product Terms for any Microsoft Products and Services. 
 
 You must also comply with all domestic and international export laws and regulations that apply to the Software, which include restrictions on destinations, end users, and end use. For further information on export restrictions, visit https://aka.ms/exporting. 
