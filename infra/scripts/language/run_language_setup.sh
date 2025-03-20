@@ -9,7 +9,7 @@ cd ${SCRIPT_DIR}
 # Arguments:
 use_mi=$1
 
-if [ "$use_mi" = "true" ];
+if [ "$use_mi" = "true" ]; then
     echo "Authenticating with MI..."
     az login --identity
 fi
