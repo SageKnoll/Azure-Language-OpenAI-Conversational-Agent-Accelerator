@@ -8,8 +8,14 @@ SCRIPT_DIR=$(dirname $(realpath "$0"))
 cd ${SCRIPT_DIR}
 
 # Arguments:
-storage_account_name=$1
-blob_container_name=$2
+use_mi=$1
+storage_account_name=$2
+blob_container_name=$3
+
+if [ "$use_mi" = "true" ];
+    echo "Authenticating with MI..."
+    az login --identity
+fi
 
 # Fetch data:
 cp ../../data/${PRODUCT_INFO_FILE} .

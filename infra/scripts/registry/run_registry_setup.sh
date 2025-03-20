@@ -7,9 +7,15 @@ SCRIPT_DIR=$(dirname $(realpath "$0"))
 cd ${SCRIPT_DIR}
 
 # Arguments:
-acr_name=$1
-repo=$2
-tag=$3
+use_mi=$1
+acr_name=$2
+repo=$3
+tag=$4
+
+if [ "$use_mi" = "true" ];
+    echo "Authenticating with MI..."
+    az login --identity
+fi
 
 # Change dir to repo root:
 cd ../../..

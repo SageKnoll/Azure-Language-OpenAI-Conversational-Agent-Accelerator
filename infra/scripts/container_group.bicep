@@ -38,7 +38,7 @@ resource managed_identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023
   name: managed_identity_name
 }
 
-resource container_group 'Microsoft.ContainerInstance/containerGroups@2024-11-01-preview' = {
+resource container_group 'Microsoft.ContainerInstance/containerGroups@2024-10-01-preview' = {
   name: 'data_plane_scripts'
   location: location
   identity: {
@@ -50,17 +50,13 @@ resource container_group 'Microsoft.ContainerInstance/containerGroups@2024-11-01
   properties: {
     containers: [
       {
-        name: 'run_setup'
+        name: 'language-setup'
         properties: {
           image: 'mcr.microsoft.com/azure-cli:cbl-mariner2.0'
           command: [
-            'az login --identity'
-            'tdnf install -y git'
-            'git clone ${repo_clone_url} --branch murraysean/update-scripts --single-branch repo_src && cd repo_src' // TODO: need to update reference to fork, then back to repo
-            'bash infra/scripts/language/run_language_setup.sh'
-            'bash infra/scripts/search/run_search_setup.sh ${storage_account_name} ${blob_container_name}'
-            'bash infra/scripts/registry/run_registry_setup.sh ${acr_name} ${repo} ${tag}'
-            'exit'
+            'bash'
+            'mnt/repo/infra/scripts/language/run_language_setup.sh'
+            'true'
           ]
           environmentVariables: [
             {
@@ -138,6 +134,95 @@ resource container_group 'Microsoft.ContainerInstance/containerGroups@2024-11-01
               memoryInGB: 1
             }
           }
+          volumeMounts: [
+            {
+              mountPath: '/mnt'
+              name: 'repo-src'
+            }
+          ]
+        }
+      }
+      {
+        name: 'search-setup'
+        properties: {
+          image: 'mcr.microsoft.com/azure-cli:cbl-mariner2.0'
+          command: [
+            'bash'
+            'mnt/repo/infra/scripts/search/run_search_setup.sh'
+            'true'
+            '${storage_account_name}'
+            '${blob_container_name}'
+          ]
+          environmentVariables: [
+            {
+              name: 'AOAI_ENDPOINT'
+              value: aoai_endpoint
+            }
+            {
+              name: 'EMBEDDING_DEPLOYMENT_NAME'
+              value: embedding_deployment_name
+            }
+            {
+              name: 'EMBEDDING_MODEL_NAME'
+              value: embedding_model_name
+            }
+            {
+              name: 'EMBEDDING_MODEL_DIMENSIONS'
+              value: string(embedding_model_dimensions)
+            }
+            {
+              name: 'STORAGE_ACCOUNT_CONNECTION_STRING'
+              value: storage_account_connection_string
+            }
+            {
+              name: 'BLOB_CONTAINER_NAME'
+              value: blob_container_name
+            }
+            {
+              name: 'SEARCH_ENDPOINT'
+              value: search_endpoint
+            }
+            {
+              name: 'SEARCH_INDEX_NAME'
+              value: search_index_name
+            }
+          ]
+          resources: {
+            requests: {
+              cpu: 1
+              memoryInGB: 1
+            }
+          }
+        }
+      }
+      {
+        name: 'registry-setup'
+        properties: {
+          image: 'mcr.microsoft.com/azure-cli:cbl-mariner2.0'
+          command: [
+            'bash'
+            'mnt/repo/infra/scripts/registry/run_registry_setup.sh'
+            'true'
+            '${acr_name}'
+            '${repo}'
+            '${tag}'
+          ]
+          resources: {
+            requests: {
+              cpu: 1
+              memoryInGB: 1
+            }
+          }
+        }
+      }
+    ]
+    restartPolicy: 'Never'
+    volumes: [
+      {
+        name: 'repo-src'
+        gitRepo: {
+          directory: 'repo'
+          repository: 'https://github.com/murraysean/Azure-Language-OpenAI-Conversational-Agent-Accelerator' // TODO update
         }
       }
     ]

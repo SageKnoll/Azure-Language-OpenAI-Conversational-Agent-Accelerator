@@ -20,5 +20,5 @@ ORCHESTRATION_DEPLOYMENT_NAME=<orchestration-deployment-name>
 ## Running Setup (local)
 ```
 az login
-bash run_language_setup.sh
+bash run_language_setup.sh false
 ```

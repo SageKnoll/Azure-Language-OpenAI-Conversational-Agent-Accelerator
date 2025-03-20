@@ -6,6 +6,14 @@ CWD=$(pwd)
 SCRIPT_DIR=$(dirname $(realpath "$0"))
 cd ${SCRIPT_DIR}
 
+# Arguments:
+use_mi=$1
+
+if [ "$use_mi" = "true" ];
+    echo "Authenticating with MI..."
+    az login --identity
+fi
+
 # Fetch data:
 cp ../../data/*.json .
 
