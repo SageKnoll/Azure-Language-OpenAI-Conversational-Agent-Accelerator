@@ -12,7 +12,7 @@ use_mi=$1
 storage_account_name=$2
 blob_container_name=$3
 
-if [ "$use_mi" = "true" ];
+if [ "$use_mi" = "true" ]; then
     echo "Authenticating with MI..."
     az login --identity
 fi
