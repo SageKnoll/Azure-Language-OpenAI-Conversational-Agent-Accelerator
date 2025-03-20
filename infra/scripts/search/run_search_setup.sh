@@ -12,9 +12,7 @@ use_mi=$1
 storage_account_name=$2
 blob_container_name=$3
 
-if [ "$use_mi" = "true" ]; then
-    tdnf install -y tar
-    python3 -m ensurepip --upgrade
+if [ "$use_mi" = "true" ];
     echo "Authenticating with MI..."
     az login --identity
 fi

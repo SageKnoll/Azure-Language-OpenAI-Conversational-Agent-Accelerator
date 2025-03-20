@@ -3,5 +3,5 @@
 ## Running Setup (local)
 ```
 az login
-bash false run_registry_setup.sh <acr-name> <repo> <tag>
+bash run_registry_setup.sh false <acr-name> <repo> <tag>
 ```

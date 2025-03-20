@@ -4,9 +4,6 @@ param location string = resourceGroup().location
 @description('Name of managed identity to use for scripts.')
 param managed_identity_name string
 
-@description('URL to clone repo.')
-param repo_clone_url string
-
 // Language setup:
 param language_endpoint string
 param clu_project_name string = 'conv-assistant-clu'
@@ -193,6 +190,12 @@ resource container_group 'Microsoft.ContainerInstance/containerGroups@2024-10-01
               memoryInGB: 1
             }
           }
+          volumeMounts: [
+            {
+              mountPath: '/mnt'
+              name: 'repo-src'
+            }
+          ]
         }
       }
       {
@@ -213,6 +216,12 @@ resource container_group 'Microsoft.ContainerInstance/containerGroups@2024-10-01
               memoryInGB: 1
             }
           }
+          volumeMounts: [
+            {
+              mountPath: '/mnt'
+              name: 'repo-src'
+            }
+          ]
         }
       }
     ]
@@ -222,7 +231,7 @@ resource container_group 'Microsoft.ContainerInstance/containerGroups@2024-10-01
         name: 'repo-src'
         gitRepo: {
           directory: 'repo'
-          repository: 'https://github.com/murraysean/Azure-Language-OpenAI-Conversational-Agent-Accelerator' // TODO update
+          repository: 'https://github.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator'
         }
       }
     ]

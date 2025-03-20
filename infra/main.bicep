@@ -28,9 +28,6 @@ param embedding_model_name string = 'text-embedding-ada-002'
 @description('Capacity of embedding model deployment.')
 param embedding_deployment_capacity int = 20
 
-//var repo_clone_url = 'https://github.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator.git'
-var repo_clone_url = 'https://github.com/murraysean/Azure-Language-OpenAI-Conversational-Agent-Accelerator.git'
-
 // Deploy resources:
 module container_registry 'resources/container_registry.bicep' = {
   name: 'deploy_container_registry'
@@ -89,7 +86,6 @@ module container_group 'scripts/container_group.bicep' = {
     embedding_model_name: openai_service.outputs.embedding_model_name
     language_endpoint: language_service.outputs.endpoint
     managed_identity_name: managed_identity.outputs.name
-    repo_clone_url: repo_clone_url
     search_endpoint: search_service.outputs.endpoint
     storage_account_connection_string: storage_account.outputs.connection_string
     storage_account_name: storage_account.outputs.name
@@ -115,6 +111,9 @@ module container_app 'resources/container_app.bicep' = {
     search_endpoint: search_service.outputs.endpoint
     search_index_name: container_group.outputs.search_index_name
   }
+  dependsOn: [
+    container_group
+  ]
 }
 
 output WEB_APP_URL string = container_app.outputs.fqdn

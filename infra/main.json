@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "0.33.93.31351",
-      "templateHash": "3111949846498085663"
+      "templateHash": "11710930047557641777"
     }
   },
   "parameters": {
@@ -56,10 +56,6 @@
         "description": "Capacity of embedding model deployment."
       }
     }
-  },
-  "variables": {
-    "base_url": "https://raw.githubusercontent.com/murraysean/Azure-Language-OpenAI-Conversational-Agent-Accelerator/murraysean/templates/",
-    "clone_url": "https://github.com/murraysean/Azure-Language-OpenAI-Conversational-Agent-Accelerator.git"
   },
   "resources": [
     {
@@ -896,228 +892,21 @@
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2022-09-01",
-      "name": "run_language_setup",
+      "name": "run_data_plane_scripts",
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
         },
         "mode": "Incremental",
         "parameters": {
-          "base_url": {
-            "value": "[variables('base_url')]"
-          },
-          "language_endpoint": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_language_service'), '2022-09-01').outputs.endpoint.value]"
-          },
-          "managed_identity_name": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_managed_identity'), '2022-09-01').outputs.name.value]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.33.93.31351",
-              "templateHash": "8576135075027558374"
-            }
-          },
-          "parameters": {
-            "location": {
-              "type": "string",
-              "defaultValue": "[resourceGroup().location]",
-              "metadata": {
-                "description": "Location for all resources."
-              }
-            },
-            "clu_project_name": {
-              "type": "string",
-              "defaultValue": "conv-assistant-clu",
-              "metadata": {
-                "description": "Name of CLU project."
-              }
-            },
-            "clu_model_name": {
-              "type": "string",
-              "defaultValue": "clu-m1",
-              "metadata": {
-                "description": "Name of CLU model."
-              }
-            },
-            "clu_deployment_name": {
-              "type": "string",
-              "defaultValue": "clu-m1-d1",
-              "metadata": {
-                "description": "Name of CLU deployment."
-              }
-            },
-            "cqa_project_name": {
-              "type": "string",
-              "defaultValue": "conv-assistant-cqa",
-              "metadata": {
-                "description": "Name of CQA project."
-              }
-            },
-            "cqa_deployment_name": {
-              "type": "string",
-              "defaultValue": "production",
-              "metadata": {
-                "description": "Name of CQA deployment."
-              }
-            },
-            "orchestration_project_name": {
-              "type": "string",
-              "defaultValue": "conv-assistant-orch",
-              "metadata": {
-                "description": "Name of Orchestration project."
-              }
-            },
-            "orchestration_model_name": {
-              "type": "string",
-              "defaultValue": "orch-m1",
-              "metadata": {
-                "description": "Name of Orchestration model."
-              }
-            },
-            "orchestration_deployment_name": {
-              "type": "string",
-              "defaultValue": "orch-m1-d1",
-              "metadata": {
-                "description": "Name of Orchestration deployment."
-              }
-            },
-            "language_endpoint": {
-              "type": "string",
-              "metadata": {
-                "description": "Endpoint of Language Service."
-              }
-            },
-            "managed_identity_name": {
-              "type": "string",
-              "metadata": {
-                "description": "Name of managed identity to use for deployment script."
-              }
-            },
-            "base_url": {
-              "type": "string",
-              "metadata": {
-                "description": "Base url of GitHub repo."
-              }
-            }
-          },
-          "resources": [
-            {
-              "type": "Microsoft.Resources/deploymentScripts",
-              "apiVersion": "2023-08-01",
-              "name": "language_setup_script",
-              "location": "[parameters('location')]",
-              "kind": "AzureCLI",
-              "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managed_identity_name')))]": {}
-                }
-              },
-              "properties": {
-                "azCliVersion": "2.50.0",
-                "primaryScriptUri": "[format('{0}infra/scripts/language/run_language_setup.sh', parameters('base_url'))]",
-                "arguments": "[format('false {0}', parameters('base_url'))]",
-                "timeout": "PT1H",
-                "retentionInterval": "PT1H",
-                "cleanupPreference": "OnSuccess",
-                "environmentVariables": [
-                  {
-                    "name": "LANGUAGE_ENDPOINT",
-                    "value": "[parameters('language_endpoint')]"
-                  },
-                  {
-                    "name": "CLU_PROJECT_NAME",
-                    "value": "[parameters('clu_project_name')]"
-                  },
-                  {
-                    "name": "CLU_MODEL_NAME",
-                    "value": "[parameters('clu_model_name')]"
-                  },
-                  {
-                    "name": "CLU_DEPLOYMENT_NAME",
-                    "value": "[parameters('clu_deployment_name')]"
-                  },
-                  {
-                    "name": "CQA_PROJECT_NAME",
-                    "value": "[parameters('cqa_project_name')]"
-                  },
-                  {
-                    "name": "CQA_DEPLOYMENT_NAME",
-                    "value": "[parameters('cqa_deployment_name')]"
-                  },
-                  {
-                    "name": "ORCHESTRATION_PROJECT_NAME",
-                    "value": "[parameters('orchestration_project_name')]"
-                  },
-                  {
-                    "name": "ORCHESTRATION_MODEL_NAME",
-                    "value": "[parameters('orchestration_model_name')]"
-                  },
-                  {
-                    "name": "ORCHESTRATION_DEPLOYMENT_NAME",
-                    "value": "[parameters('orchestration_deployment_name')]"
-                  }
-                ]
-              }
-            }
-          ],
-          "outputs": {
-            "clu_project_name": {
-              "type": "string",
-              "value": "[parameters('clu_project_name')]"
-            },
-            "clu_deployment_name": {
-              "type": "string",
-              "value": "[parameters('clu_deployment_name')]"
-            },
-            "cqa_project_name": {
-              "type": "string",
-              "value": "[parameters('cqa_project_name')]"
-            },
-            "cqa_deployment_name": {
-              "type": "string",
-              "value": "[parameters('cqa_deployment_name')]"
-            },
-            "orchestration_project_name": {
-              "type": "string",
-              "value": "[parameters('orchestration_project_name')]"
-            },
-            "orchestration_deployment_name": {
-              "type": "string",
-              "value": "[parameters('orchestration_deployment_name')]"
-            }
-          }
-        }
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'deploy_language_service')]",
-        "[resourceId('Microsoft.Resources/deployments', 'deploy_managed_identity')]"
-      ]
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "run_search_setup",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "base_url": {
-            "value": "[variables('base_url')]"
-          },
-          "blob_container_name": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_storage_account'), '2022-09-01').outputs.blob_container_name.value]"
+          "acr_name": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_container_registry'), '2022-09-01').outputs.name.value]"
           },
           "aoai_endpoint": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_openai_service'), '2022-09-01').outputs.endpoint.value]"
+          },
+          "blob_container_name": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_storage_account'), '2022-09-01').outputs.blob_container_name.value]"
           },
           "embedding_deployment_name": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_openai_service'), '2022-09-01').outputs.embedding_deployment_name.value]"
@@ -1127,6 +916,9 @@
           },
           "embedding_model_name": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_openai_service'), '2022-09-01').outputs.embedding_model_name.value]"
+          },
+          "language_endpoint": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_language_service'), '2022-09-01').outputs.endpoint.value]"
           },
           "managed_identity_name": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_managed_identity'), '2022-09-01').outputs.name.value]"
@@ -1148,7 +940,7 @@
             "_generator": {
               "name": "bicep",
               "version": "0.33.93.31351",
-              "templateHash": "3764404495540514855"
+              "templateHash": "14088555709600193579"
             }
           },
           "parameters": {
@@ -1158,6 +950,47 @@
               "metadata": {
                 "description": "Location for all resources."
               }
+            },
+            "managed_identity_name": {
+              "type": "string",
+              "metadata": {
+                "description": "Name of managed identity to use for scripts."
+              }
+            },
+            "language_endpoint": {
+              "type": "string"
+            },
+            "clu_project_name": {
+              "type": "string",
+              "defaultValue": "conv-assistant-clu"
+            },
+            "clu_model_name": {
+              "type": "string",
+              "defaultValue": "clu-m1"
+            },
+            "clu_deployment_name": {
+              "type": "string",
+              "defaultValue": "clu-m1-d1"
+            },
+            "cqa_project_name": {
+              "type": "string",
+              "defaultValue": "conv-assistant-cqa"
+            },
+            "cqa_deployment_name": {
+              "type": "string",
+              "defaultValue": "production"
+            },
+            "orchestration_project_name": {
+              "type": "string",
+              "defaultValue": "conv-assistant-orch"
+            },
+            "orchestration_model_name": {
+              "type": "string",
+              "defaultValue": "orch-m1"
+            },
+            "orchestration_deployment_name": {
+              "type": "string",
+              "defaultValue": "orch-m1-d1"
             },
             "aoai_endpoint": {
               "type": "string"
@@ -1187,132 +1020,6 @@
               "type": "string",
               "defaultValue": "conv-assistant-manuals-idx"
             },
-            "managed_identity_name": {
-              "type": "string",
-              "metadata": {
-                "description": "Name of managed identity to use for deployment script."
-              }
-            },
-            "base_url": {
-              "type": "string",
-              "metadata": {
-                "description": "Base url of GitHub repo."
-              }
-            }
-          },
-          "resources": [
-            {
-              "type": "Microsoft.Resources/deploymentScripts",
-              "apiVersion": "2023-08-01",
-              "name": "search_setup_script",
-              "location": "[parameters('location')]",
-              "kind": "AzureCLI",
-              "identity": {
-                "type": "UserAssigned",
-                "userAssignedIdentities": {
-                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('managed_identity_name')))]": {}
-                }
-              },
-              "properties": {
-                "azCliVersion": "2.50.0",
-                "primaryScriptUri": "[format('{0}infra/scripts/search/run_search_setup.sh', parameters('base_url'))]",
-                "arguments": "[format('false {0} {1} {2}', parameters('storage_account_name'), parameters('blob_container_name'), parameters('base_url'))]",
-                "timeout": "PT1H",
-                "retentionInterval": "PT1H",
-                "cleanupPreference": "OnSuccess",
-                "environmentVariables": [
-                  {
-                    "name": "AOAI_ENDPOINT",
-                    "value": "[parameters('aoai_endpoint')]"
-                  },
-                  {
-                    "name": "EMBEDDING_DEPLOYMENT_NAME",
-                    "value": "[parameters('embedding_deployment_name')]"
-                  },
-                  {
-                    "name": "EMBEDDING_MODEL_NAME",
-                    "value": "[parameters('embedding_model_name')]"
-                  },
-                  {
-                    "name": "EMBEDDING_MODEL_DIMENSIONS",
-                    "value": "[string(parameters('embedding_model_dimensions'))]"
-                  },
-                  {
-                    "name": "STORAGE_ACCOUNT_CONNECTION_STRING",
-                    "value": "[parameters('storage_account_connection_string')]"
-                  },
-                  {
-                    "name": "BLOB_CONTAINER_NAME",
-                    "value": "[parameters('blob_container_name')]"
-                  },
-                  {
-                    "name": "SEARCH_ENDPOINT",
-                    "value": "[parameters('search_endpoint')]"
-                  },
-                  {
-                    "name": "SEARCH_INDEX_NAME",
-                    "value": "[parameters('search_index_name')]"
-                  }
-                ]
-              }
-            }
-          ],
-          "outputs": {
-            "search_index_name": {
-              "type": "string",
-              "value": "[parameters('search_index_name')]"
-            }
-          }
-        }
-      },
-      "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'deploy_managed_identity')]",
-        "[resourceId('Microsoft.Resources/deployments', 'deploy_openai_service')]",
-        "[resourceId('Microsoft.Resources/deployments', 'deploy_search_service')]",
-        "[resourceId('Microsoft.Resources/deployments', 'deploy_storage_account')]"
-      ]
-    },
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2022-09-01",
-      "name": "run_registry_setup",
-      "properties": {
-        "expressionEvaluationOptions": {
-          "scope": "inner"
-        },
-        "mode": "Incremental",
-        "parameters": {
-          "acr_name": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_container_registry'), '2022-09-01').outputs.name.value]"
-          },
-          "base_url": {
-            "value": "[variables('base_url')]"
-          },
-          "clone_url": {
-            "value": "[variables('clone_url')]"
-          },
-          "managed_identity_name": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_managed_identity'), '2022-09-01').outputs.name.value]"
-          }
-        },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "metadata": {
-            "_generator": {
-              "name": "bicep",
-              "version": "0.33.93.31351",
-              "templateHash": "16905822033660976089"
-            }
-          },
-          "parameters": {
-            "location": {
-              "type": "string",
-              "defaultValue": "[resourceGroup().location]",
-              "metadata": {
-                "description": "Location for all resources."
-              }
-            },
             "tag": {
               "type": "string",
               "defaultValue": "[utcNow()]"
@@ -1323,30 +1030,14 @@
             "repo": {
               "type": "string",
               "defaultValue": "conv-agent/app"
-            },
-            "clone_url": {
-              "type": "string"
-            },
-            "managed_identity_name": {
-              "type": "string",
-              "metadata": {
-                "description": "Name of managed identity to use for deployment script."
-              }
-            },
-            "base_url": {
-              "type": "string",
-              "metadata": {
-                "description": "Base url of GitHub repo."
-              }
             }
           },
           "resources": [
             {
-              "type": "Microsoft.Resources/deploymentScripts",
-              "apiVersion": "2023-08-01",
-              "name": "registry_setup_script",
+              "type": "Microsoft.ContainerInstance/containerGroups",
+              "apiVersion": "2024-10-01-preview",
+              "name": "data_plane_scripts",
               "location": "[parameters('location')]",
-              "kind": "AzureCLI",
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
@@ -1354,16 +1045,229 @@
                 }
               },
               "properties": {
-                "azCliVersion": "2.50.0",
-                "primaryScriptUri": "[format('{0}infra/scripts/registry/run_registry_setup.sh', parameters('base_url'))]",
-                "arguments": "[format('false {0} {1} {2} {3}', parameters('acr_name'), parameters('repo'), parameters('tag'), parameters('clone_url'))]",
-                "timeout": "PT1H",
-                "retentionInterval": "PT1H",
-                "cleanupPreference": "OnSuccess"
+                "containers": [
+                  {
+                    "name": "language-setup",
+                    "properties": {
+                      "image": "mcr.microsoft.com/azure-cli:cbl-mariner2.0",
+                      "command": [
+                        "bash",
+                        "mnt/repo/infra/scripts/language/run_language_setup.sh",
+                        "true"
+                      ],
+                      "environmentVariables": [
+                        {
+                          "name": "LANGUAGE_ENDPOINT",
+                          "value": "[parameters('language_endpoint')]"
+                        },
+                        {
+                          "name": "CLU_PROJECT_NAME",
+                          "value": "[parameters('clu_project_name')]"
+                        },
+                        {
+                          "name": "CLU_MODEL_NAME",
+                          "value": "[parameters('clu_model_name')]"
+                        },
+                        {
+                          "name": "CLU_DEPLOYMENT_NAME",
+                          "value": "[parameters('clu_deployment_name')]"
+                        },
+                        {
+                          "name": "CQA_PROJECT_NAME",
+                          "value": "[parameters('cqa_project_name')]"
+                        },
+                        {
+                          "name": "CQA_DEPLOYMENT_NAME",
+                          "value": "[parameters('cqa_deployment_name')]"
+                        },
+                        {
+                          "name": "ORCHESTRATION_PROJECT_NAME",
+                          "value": "[parameters('orchestration_project_name')]"
+                        },
+                        {
+                          "name": "ORCHESTRATION_MODEL_NAME",
+                          "value": "[parameters('orchestration_model_name')]"
+                        },
+                        {
+                          "name": "ORCHESTRATION_DEPLOYMENT_NAME",
+                          "value": "[parameters('orchestration_deployment_name')]"
+                        },
+                        {
+                          "name": "AOAI_ENDPOINT",
+                          "value": "[parameters('aoai_endpoint')]"
+                        },
+                        {
+                          "name": "EMBEDDING_DEPLOYMENT_NAME",
+                          "value": "[parameters('embedding_deployment_name')]"
+                        },
+                        {
+                          "name": "EMBEDDING_MODEL_NAME",
+                          "value": "[parameters('embedding_model_name')]"
+                        },
+                        {
+                          "name": "EMBEDDING_MODEL_DIMENSIONS",
+                          "value": "[string(parameters('embedding_model_dimensions'))]"
+                        },
+                        {
+                          "name": "STORAGE_ACCOUNT_CONNECTION_STRING",
+                          "value": "[parameters('storage_account_connection_string')]"
+                        },
+                        {
+                          "name": "BLOB_CONTAINER_NAME",
+                          "value": "[parameters('blob_container_name')]"
+                        },
+                        {
+                          "name": "SEARCH_ENDPOINT",
+                          "value": "[parameters('search_endpoint')]"
+                        },
+                        {
+                          "name": "SEARCH_INDEX_NAME",
+                          "value": "[parameters('search_index_name')]"
+                        }
+                      ],
+                      "resources": {
+                        "requests": {
+                          "cpu": 1,
+                          "memoryInGB": 1
+                        }
+                      },
+                      "volumeMounts": [
+                        {
+                          "mountPath": "/mnt",
+                          "name": "repo-src"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "name": "search-setup",
+                    "properties": {
+                      "image": "mcr.microsoft.com/azure-cli:cbl-mariner2.0",
+                      "command": [
+                        "bash",
+                        "mnt/repo/infra/scripts/search/run_search_setup.sh",
+                        "true",
+                        "[format('{0}', parameters('storage_account_name'))]",
+                        "[format('{0}', parameters('blob_container_name'))]"
+                      ],
+                      "environmentVariables": [
+                        {
+                          "name": "AOAI_ENDPOINT",
+                          "value": "[parameters('aoai_endpoint')]"
+                        },
+                        {
+                          "name": "EMBEDDING_DEPLOYMENT_NAME",
+                          "value": "[parameters('embedding_deployment_name')]"
+                        },
+                        {
+                          "name": "EMBEDDING_MODEL_NAME",
+                          "value": "[parameters('embedding_model_name')]"
+                        },
+                        {
+                          "name": "EMBEDDING_MODEL_DIMENSIONS",
+                          "value": "[string(parameters('embedding_model_dimensions'))]"
+                        },
+                        {
+                          "name": "STORAGE_ACCOUNT_CONNECTION_STRING",
+                          "value": "[parameters('storage_account_connection_string')]"
+                        },
+                        {
+                          "name": "BLOB_CONTAINER_NAME",
+                          "value": "[parameters('blob_container_name')]"
+                        },
+                        {
+                          "name": "SEARCH_ENDPOINT",
+                          "value": "[parameters('search_endpoint')]"
+                        },
+                        {
+                          "name": "SEARCH_INDEX_NAME",
+                          "value": "[parameters('search_index_name')]"
+                        }
+                      ],
+                      "resources": {
+                        "requests": {
+                          "cpu": 1,
+                          "memoryInGB": 1
+                        }
+                      },
+                      "volumeMounts": [
+                        {
+                          "mountPath": "/mnt",
+                          "name": "repo-src"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "name": "registry-setup",
+                    "properties": {
+                      "image": "mcr.microsoft.com/azure-cli:cbl-mariner2.0",
+                      "command": [
+                        "bash",
+                        "mnt/repo/infra/scripts/registry/run_registry_setup.sh",
+                        "true",
+                        "[format('{0}', parameters('acr_name'))]",
+                        "[format('{0}', parameters('repo'))]",
+                        "[format('{0}', parameters('tag'))]"
+                      ],
+                      "resources": {
+                        "requests": {
+                          "cpu": 1,
+                          "memoryInGB": 1
+                        }
+                      },
+                      "volumeMounts": [
+                        {
+                          "mountPath": "/mnt",
+                          "name": "repo-src"
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "restartPolicy": "Never",
+                "volumes": [
+                  {
+                    "name": "repo-src",
+                    "gitRepo": {
+                      "directory": "repo",
+                      "repository": "https://github.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator"
+                    }
+                  }
+                ],
+                "osType": "Linux"
               }
             }
           ],
           "outputs": {
+            "clu_project_name": {
+              "type": "string",
+              "value": "[parameters('clu_project_name')]"
+            },
+            "clu_deployment_name": {
+              "type": "string",
+              "value": "[parameters('clu_deployment_name')]"
+            },
+            "cqa_project_name": {
+              "type": "string",
+              "value": "[parameters('cqa_project_name')]"
+            },
+            "cqa_deployment_name": {
+              "type": "string",
+              "value": "[parameters('cqa_deployment_name')]"
+            },
+            "orchestration_project_name": {
+              "type": "string",
+              "value": "[parameters('orchestration_project_name')]"
+            },
+            "orchestration_deployment_name": {
+              "type": "string",
+              "value": "[parameters('orchestration_deployment_name')]"
+            },
+            "search_index_name": {
+              "type": "string",
+              "value": "[parameters('search_index_name')]"
+            },
             "image": {
               "type": "string",
               "value": "[format('{0}.azurecr.io/{1}:{2}', parameters('acr_name'), parameters('repo'), parameters('tag'))]"
@@ -1373,7 +1277,11 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'deploy_container_registry')]",
-        "[resourceId('Microsoft.Resources/deployments', 'deploy_managed_identity')]"
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_language_service')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_managed_identity')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_openai_service')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_search_service')]",
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_storage_account')]"
       ]
     },
     {
@@ -1396,19 +1304,19 @@
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_openai_service'), '2022-09-01').outputs.endpoint.value]"
           },
           "clu_deployment_name": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_language_setup'), '2022-09-01').outputs.clu_deployment_name.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_data_plane_scripts'), '2022-09-01').outputs.clu_deployment_name.value]"
           },
           "clu_project_name": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_language_setup'), '2022-09-01').outputs.clu_project_name.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_data_plane_scripts'), '2022-09-01').outputs.clu_project_name.value]"
           },
           "cqa_deployment_name": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_language_setup'), '2022-09-01').outputs.cqa_deployment_name.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_data_plane_scripts'), '2022-09-01').outputs.cqa_deployment_name.value]"
           },
           "cqa_project_name": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_language_setup'), '2022-09-01').outputs.cqa_project_name.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_data_plane_scripts'), '2022-09-01').outputs.cqa_project_name.value]"
           },
           "image": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_registry_setup'), '2022-09-01').outputs.image.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_data_plane_scripts'), '2022-09-01').outputs.image.value]"
           },
           "language_endpoint": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_language_service'), '2022-09-01').outputs.endpoint.value]"
@@ -1417,16 +1325,16 @@
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_managed_identity'), '2022-09-01').outputs.name.value]"
           },
           "orchestration_deployment_name": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_language_setup'), '2022-09-01').outputs.orchestration_deployment_name.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_data_plane_scripts'), '2022-09-01').outputs.orchestration_deployment_name.value]"
           },
           "orchestration_project_name": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_language_setup'), '2022-09-01').outputs.orchestration_project_name.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_data_plane_scripts'), '2022-09-01').outputs.orchestration_project_name.value]"
           },
           "search_endpoint": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_search_service'), '2022-09-01').outputs.endpoint.value]"
           },
           "search_index_name": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_search_setup'), '2022-09-01').outputs.search_index_name.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'run_data_plane_scripts'), '2022-09-01').outputs.search_index_name.value]"
           }
         },
         "template": {
@@ -1685,14 +1593,12 @@
         }
       },
       "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'run_data_plane_scripts')]",
         "[resourceId('Microsoft.Resources/deployments', 'deploy_container_registry')]",
         "[resourceId('Microsoft.Resources/deployments', 'deploy_language_service')]",
-        "[resourceId('Microsoft.Resources/deployments', 'run_language_setup')]",
         "[resourceId('Microsoft.Resources/deployments', 'deploy_managed_identity')]",
         "[resourceId('Microsoft.Resources/deployments', 'deploy_openai_service')]",
-        "[resourceId('Microsoft.Resources/deployments', 'run_registry_setup')]",
-        "[resourceId('Microsoft.Resources/deployments', 'deploy_search_service')]",
-        "[resourceId('Microsoft.Resources/deployments', 'run_search_setup')]"
+        "[resourceId('Microsoft.Resources/deployments', 'deploy_search_service')]"
       ]
     }
   ],

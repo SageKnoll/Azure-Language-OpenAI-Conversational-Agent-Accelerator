@@ -18,5 +18,5 @@ SEARCH_INDEX_NAME=<search-index-name>
 ## Running Setup (local)
 ```
 az login
-bash false run_search_setup.sh <storage-account-name> <blob-container-name>
+bash run_search_setup.sh false <storage-account-name> <blob-container-name>
 ```
