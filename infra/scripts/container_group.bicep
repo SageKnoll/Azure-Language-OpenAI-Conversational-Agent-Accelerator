@@ -6,12 +6,12 @@ param managed_identity_name string
 
 // Language setup:
 param language_endpoint string
-param clu_project_name string = 'conv-assistant-clu'
+param clu_project_name string = 'conv-agent-clu'
 param clu_model_name string = 'clu-m1'
 param clu_deployment_name string = 'clu-m1-d1'
-param cqa_project_name string = 'conv-assistant-cqa'
+param cqa_project_name string = 'conv-agent-cqa'
 param cqa_deployment_name string = 'production'
-param orchestration_project_name string = 'conv-assistant-orch'
+param orchestration_project_name string = 'conv-agent-orch'
 param orchestration_model_name string = 'orch-m1'
 param orchestration_deployment_name string = 'orch-m1-d1'
 
@@ -24,7 +24,7 @@ param storage_account_name string
 param storage_account_connection_string string
 param blob_container_name string
 param search_endpoint string
-param search_index_name string = 'conv-assistant-manuals-idx'
+param search_index_name string = 'conv-agent-manuals-idx'
 
 // Registry setup:
 param tag string = utcNow()

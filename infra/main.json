@@ -962,7 +962,7 @@
             },
             "clu_project_name": {
               "type": "string",
-              "defaultValue": "conv-assistant-clu"
+              "defaultValue": "conv-agent-clu"
             },
             "clu_model_name": {
               "type": "string",
@@ -974,7 +974,7 @@
             },
             "cqa_project_name": {
               "type": "string",
-              "defaultValue": "conv-assistant-cqa"
+              "defaultValue": "conv-agent-cqa"
             },
             "cqa_deployment_name": {
               "type": "string",
@@ -982,7 +982,7 @@
             },
             "orchestration_project_name": {
               "type": "string",
-              "defaultValue": "conv-assistant-orch"
+              "defaultValue": "conv-agent-orch"
             },
             "orchestration_model_name": {
               "type": "string",
@@ -1018,7 +1018,7 @@
             },
             "search_index_name": {
               "type": "string",
-              "defaultValue": "conv-assistant-manuals-idx"
+              "defaultValue": "conv-agent-manuals-idx"
             },
             "tag": {
               "type": "string",
