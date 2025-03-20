@@ -10,6 +10,7 @@ cd ${SCRIPT_DIR}
 use_mi=$1
 
 if [ "$use_mi" = "true" ]; then
+    python3 -m ensurepip --upgrade
     echo "Authenticating with MI..."
     az login --identity
 fi
