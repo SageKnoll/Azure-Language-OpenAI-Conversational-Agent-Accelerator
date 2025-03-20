@@ -1,4 +1,4 @@
-# Conversational-Assistant: Language Setup
+# Conversational-Agent: Language Setup
 
 ## Environment Variables
 Expected environment variables:
@@ -20,5 +20,5 @@ ORCHESTRATION_DEPLOYMENT_NAME=<orchestration-deployment-name>
 ## Running Setup (local)
 ```
 az login
-bash run_language_setup.sh true
+bash run_language_setup.sh false
 ```
