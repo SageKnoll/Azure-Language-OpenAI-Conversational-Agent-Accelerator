@@ -46,14 +46,6 @@ resource managed_identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023
   name: managed_identity_name
 }
 
-resource app_env 'Microsoft.App/managedEnvironments@2024-10-02-preview' = {
-  name: 'cae-conv-agent'
-  location: location
-  properties: {
-    
-  }
-}
-
 resource conv_agent_app 'Microsoft.App/containerApps@2024-10-02-preview' = {
   name: 'ca-conv-agent-app'
   location: location
@@ -82,7 +74,6 @@ resource conv_agent_app 'Microsoft.App/containerApps@2024-10-02-preview' = {
         }
       ]
     }
-    managedEnvironmentId: app_env.id
     template: {
       containers: [
         {
