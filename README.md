@@ -183,7 +183,7 @@ If you're not using one of the above options for opening the project, then you'l
 
     * [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 
-2. Download the project code (you do not need to directly `git clone` the repo):
+2. Download the project code:
 
     ```shell
     azd init -t Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator/
