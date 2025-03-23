@@ -92,6 +92,14 @@ module container_group 'scripts/container_group.bicep' = {
   }
 }
 
+// Manually wait for scripts to complete:
+module manual_wait 'scripts/manual_wait.bicep' = {
+  name: 'run_manual_wait'
+  dependsOn: [
+    container_group
+  ]
+}
+
 // Deploy container app:
 module container_app 'resources/container_app.bicep' = {
   name: 'deploy_container_app'
@@ -112,7 +120,7 @@ module container_app 'resources/container_app.bicep' = {
     search_index_name: container_group.outputs.search_index_name
   }
   dependsOn: [
-    container_group
+    manual_wait
   ]
 }
 

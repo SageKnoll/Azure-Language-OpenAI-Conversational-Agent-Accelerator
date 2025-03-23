@@ -8,26 +8,26 @@ This template is perfect for developers and organizations looking to design, cus
 
 **Leverage the combined capabilities of Azure AI Language and Azure OpenAI for enhanced conversational agent solutions.**
 
-#### Important Security Notice
+### Important Security Notice
 
 This template, the application code and configuration it contains, has been built to showcase Microsoft Azure specific services and tools. We strongly advise our customers not to make this code part of their production environments without implementing or enabling additional security features.
 
 ### MENU: [**OVERVIEW and USER STORY**](#overview) • [**QUICK DEPLOY**](#getting-started) • [**GUIDANCE**](#guidance)
 
 ## Overview
-Below is a reference architecture of this Agent template:
+Below is a reference architecture diagram of this Agent template:
 ![image](https://github.com/user-attachments/assets/8e499373-578e-41ee-a4ec-8c858964db13)
 
-### Key components of this template 
+## Features
 1. **Client-Side User Interface:** A web-based client-side user interface allows you to quickly explore and test this Agent template.
 2. **Triage Agent:** The Agent allows for a dynamic, adaptable workflow with multiple orchestration options including LLM function calling. 
 3. **Conversational Language Understanding (CLU) Agent:** CLU allows you to define the top intents you want to ensure response quality. Whether completing a task or addressing specific customer needs, CLU provides a mechanism to ensure the agent accurately understands and executes the process of handling pre-defined intents.
 4. **Custom Question Answering (CQA) Agent:** CQA allows you to create and manage predefined QA pairs to deliver precise responses. CQA can respond consistently, improving reliability, particularly for high-stake or regulatory-sensitive conversations. 
 5. **PII Detection and Redaction for Privacy Protection:** Protecting user privacy is a top priority. Azure AI Language’s Personally Identifiable Information (PII) can identify and redact sensitive information before sending to any other agents for processing.
-6. **LLM with Retrieval-Augmented Generation (RAG) to Handle Everything Else:** In this template, we are showcasing an RAG solution using Azure AI Search to handle missed intents or user queries on lower-priority topics. This RAG solution can be replaced with your existing one. The predefined intents and question-answer pairs can be appended and updated for CLU agent and CQA agent over time based on evolving business needs and DSATs (dissatisfaction) discovered in the RAG responses. 
+6. **LLM with Retrieval-Augmented Generation (RAG) to Handle Everything Else:** In this template, we are showcasing a RAG solution using Azure AI Search to handle missed intents or user queries on lower-priority topics. This RAG solution can be replaced with your existing one. The predefined intents and question-answer pairs can be appended and updated for CLU agent and CQA agent over time based on evolving business needs and DSATs (dissatisfaction) discovered in the RAG responses. 
 7. **Agent Configuration for "Plug-and-Play":** The template is designed to allow you to easily swap, add, or remove agents/components to tailor to your specific needs. Whether you want to add custom intents, adjust fallback mechanisms, or incorporate additional data sources, the modular nature of this template makes it simple to configure.
 
-### Benefits it brings
+### Benefits
 Azure AI Language already offers two services: Conversational Language Understanding (CLU) and Custom Question Answering (CQA). CLU analyzes user inputs to extract intents and entities. CQA uses pre-defined question-answer pairs or a pre-configured knowledgebase to answer user questions.
 #### How CLU can help
 A common issue with intent prediction in conversational AI is the misclassification of user intents and inaccurate entity identification, especially when the user's input does not match any predefined intents. This can lead to poor user experience due to inaccurately invoked AI Agents or custom actions for intent fulfillment.  
@@ -42,7 +42,7 @@ However, issues with RAG solutions (DSATs, or dissatisfactory examples) are hard
 
 Azure AI Language can help address these issues and expand the functionality of existing RAG chat solutions. 
 
-## Calling Stack Demonstrated in the Accelerator Template
+## Agent Architecture
 ![image](./docs/images/architecture.png)
 This project includes a `UnifiedConversationOrchestrator` class that unifies both `CLU` and `CQA` functionality. Using a variety of different routing strategies, this orchestrator can intelligently route user input to a `CLU` or `CQA` model.
 
@@ -67,11 +67,12 @@ The container app demo included with this project showcases the following chat e
 Consider the following real-world example: Contoso Outdoors, a fictional retail company, has an existing RAG chat solution using AOAI. Their grounding data is composed of product manuals of the outdoor gear they sell. Because of this, users can easily ask the AI chat questions regarding Contoso Outdoors products (e.g. What tents do you sell?) and obtain grounded, contextual, and accurate responses.
 However, if a user asks questions about the company's return policy, the RAG chat will not be able to respond accurately, as the grounding data does not contain any information regarding a return policy. It can be expensive and time consuming to update the grounding data to address this. Further, if a user asks a question about their online order status, even with updates of grounding data, RAG is not able to respond effectively here, as information is dynamic.
 Incorporating CLU/CQA using a UnifiedConversationOrchestrator solves these problems. Contoso Outdoors would set up a CQA model that can answer extended questions (e.g. their return policy), and set up a CLU model that can identify online order actions (e.g. checking the status of an order). Now, both of these DSATs are resolved, and Contoso Outdoors still maintains their existing RAG chat functionality, as UnifiedConversationOrchestrator falls back to the original RAG chat if CLU/CQA are not fit to respond to the user chat.
+
 ![image](./docs/images/ui.png)
 
 This displays the "better together" story when using Azure AI Language and Azure OpenAI.
 
-## Note:
+## Notes:
 **GenAI is used in the following contexts:**
 - Demo code: General AOAI GPT chat client to break user inputs into separate utterances.
 - Demo code: General AOAI GPT `RAG` client to provide grounded responses as a fallback function.
@@ -111,6 +112,8 @@ Check the [Azure Products by Region](https://azure.microsoft.com/en-us/explore/g
 - Container Registry
 - Container App
 - Managed Identity
+- Virtual Network
+- Virtual Machine
 
 ### **Configurable Deployment Settings**
 When you start the deployment, most parameters will have **default values**, but you can update the following settings:  
@@ -133,8 +136,6 @@ To adjust quota settings, follow these [steps](./docs/check_quota_settings.md)
 
 ### Deployment Options
 Pick from the options below to see step-by-step instructions for: GitHub Codespaces, VS Code Dev Containers, Local Environments, and Bicep deployments.
-
-**Note:** you do not need to directly `git clone` this repo. The options below include obtaining the source code.
 
 <details>
   <summary><b>Deploy in GitHub Codespaces</b></summary>
@@ -181,14 +182,13 @@ If you're not using one of the above options for opening the project, then you'l
 1. Make sure the following tools are installed:
 
     * [Azure Developer CLI (azd)](https://aka.ms/install-azd)
-    * [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-    * [Git](https://git-scm.com/downloads)
 
-2. Download the project code:
+2. Download the project code (you do not need to directly `git clone` the repo):
 
     ```shell
     azd init -t Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator/
     ```
+    **Note:** the above command should be run in a new folder of your choosing. You do not need to run `git clone` to download the project source code. `azd init` handles this for you.
 
 3. Open the project folder in your terminal or editor.
 
@@ -211,7 +211,7 @@ If you're not using one of the above options for opening the project, then you'l
 
 Once you've opened the project in [Codespaces](#github-codespaces) or in [Dev Containers](#vs-code-dev-containers) or [locally](#local-environment), you can deploy it to Azure following the following steps. 
 
-To change the azd parameters from the default values, follow the steps [here](./docs/customizing_azd_parameters.md). 
+To change the `azd` parameters from the default values, follow the steps [here](./docs/customizing_azd_parameters.md). 
 
 
 1. Login to Azure:
@@ -234,10 +234,10 @@ To change the azd parameters from the default values, follow the steps [here](./
 
 3. Provide an `azd` environment name (like "conv-agent")
 4. Select a subscription from your Azure account, and select a location which has quota for all the resources. 
-    * This deployment will take *10-15 minutes* to provision the resources in your account and set up the solution with sample data. 
+    * This deployment will take *10-20 minutes* to provision the resources in your account and set up the solution with sample data. 
     * If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources.
 
-5. Once the deployment has completed successfully, open the [Azure Portal](https://portal.azure.com/), go to the deployed resource group, find the Container App resource and get the app URL from `Application Url`.
+5. Once the deployment has completed successfully, open the [Azure Portal](https://portal.azure.com/), go to the deployed resource group, find the Container App resource (`ca-conv-agent-app`) and get the app URL from `Application Url`.
 
 6. You can now delete the resources by running `azd down`, if you are done trying out the application. 
 <!-- 6. You can now proceed to run the [development server](#development-server) to test the app locally, or if you are done trying out the app, you can delete the resources by running `azd down`. -->
@@ -245,12 +245,16 @@ To change the azd parameters from the default values, follow the steps [here](./
 ### Additional Steps
 
 1. **Add App Authentication**
-   
+
     Follow steps listed [here](https://learn.microsoft.com/en-us/azure/container-apps/authentication-entra) to configure authenitcation in thecontainer app.
 
 2. **Deleting Resources After a Failed Deployment**
 
      Follow steps in [Delete Resource Group](./docs/delete_resource_group.md) If your deployment fails and you need to clean up the resources.
+
+3. **Deleting Temporary Resources**
+
+    This template creates a virtual machine with a custom run command to introduce a manual wait step. The reason for this is to ensure that data plane scripts run to completion before spinning up the final container app. A virtual network, network interface card, virtual machine, and virtual machine run command are created to peform this manual wait. All of these resouces have the suffix `-manual-wait`. You may delete all resources with this suffix after a successful deployment.
 
 ### Sample Questions
 
@@ -281,6 +285,8 @@ You can try the [Azure pricing calculator](https://azure.microsoft.com/en-us/pri
 * Azure Container App: Consumption tier with 1 CPU, 2GiB memory/storage. Pricing is based on resource allocation, and each month allows for a certain amount of free usage. [Pricing](https://azure.microsoft.com/pricing/details/container-apps/)
 * Azure Container Registry: Basic tier. [Pricing](https://azure.microsoft.com/pricing/details/container-registry/)
 * Azure AI Langauage: S tier. [Pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/language-service/?msockid=3d25d5a7fe346936111ec024ff8e685c)
+* Azure Virtual Machine: `Standard_B1s` SKU. [Pricing](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/windows/?msockid=3d25d5a7fe346936111ec024ff8e685c). Note that this is a temporary resource that can be deleted after a successful deployment. See [**Deleting Temporary Resources**](#additional-steps).
+
 
 ⚠️ To avoid unnecessary costs, remember to take down your app if it's no longer in use,
 either by deleting the resource group in the Portal or running `azd down`.
