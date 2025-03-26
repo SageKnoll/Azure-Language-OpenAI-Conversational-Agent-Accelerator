@@ -2,18 +2,9 @@
 
 set -e
 
-CWD=$(pwd)
-SCRIPT_DIR=$(dirname $(realpath "$0"))
-cd ${SCRIPT_DIR}
-
-# Arguments:
-use_mi=$1
-
-if [ "$use_mi" = "true" ]; then
-    python3 -m ensurepip --upgrade
-    echo "Authenticating with MI..."
-    az login --identity
-fi
+cwd=$(pwd)
+script_dir=$(dirname $(realpath "$0"))
+cd ${script_dir}
 
 # Fetch data:
 cp ../../data/*.json .
@@ -30,6 +21,6 @@ python3 orchestration_setup.py
 
 # Cleanup:
 rm *.json
-cd ${CWD}
+cd ${cwd}
 
 echo "Language setup complete"

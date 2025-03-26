@@ -16,9 +16,6 @@ param openai_service_name string
 @description('Name of Language Service resource.')
 param language_service_name string
 
-@description('Name of Container Registry resource.')
-param container_registry_name string
-
 resource managed_identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: name
   location: location
@@ -116,69 +113,6 @@ resource language_role_assignment 'Microsoft.Authorization/roleAssignments@2022-
 @description('Built-in Cognitive Services Language Owner role (https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/ai-machine-learning#cognitive-services-language-owner).')
 resource cognitive_services_language_owner_role 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
   name: 'f07febfe-79bc-46b1-8b37-790e26e6e498'
-}
-
-//-----------Container Registry Role Assignments-----------//
-resource container_registry 'Microsoft.ContainerRegistry/registries@2023-07-01' existing = {
-  name: container_registry_name
-}
-
-resource acr_pull_role_assignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(container_registry.id, managed_identity.id, acr_pull_role.id)
-  scope: container_registry
-  properties: {
-    principalId: managed_identity.properties.principalId
-    roleDefinitionId: acr_pull_role.id
-    principalType: 'ServicePrincipal'
-  }
-}
-
-resource acr_push_role_assignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(container_registry.id, managed_identity.id, acr_push_role.id)
-  scope: container_registry
-  properties: {
-    principalId: managed_identity.properties.principalId
-    roleDefinitionId: acr_push_role.id
-    principalType: 'ServicePrincipal'
-  }
-}
-
-resource acr_task_contributor_role_assignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(container_registry.id, managed_identity.id, acr_task_contributor_role.id)
-  scope: container_registry
-  properties: {
-    principalId: managed_identity.properties.principalId
-    roleDefinitionId: acr_task_contributor_role.id
-    principalType: 'ServicePrincipal'
-  }
-}
-
-resource acr_contributor_role_assignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(container_registry.id, managed_identity.id, acr_contributor_role.id)
-  scope: container_registry
-  properties: {
-    principalId: managed_identity.properties.principalId
-    roleDefinitionId: acr_contributor_role.id
-    principalType: 'ServicePrincipal'
-  }
-}
-
-resource acr_task_contributor_role 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
-  name: 'fb382eab-e894-4461-af04-94435c366c3f'
-}
-
-resource acr_contributor_role 'Microsoft.Authorization/roleDefinitions@2018-01-01-preview' existing = {
-  name: '3bc748fc-213d-45c1-8d91-9da5725539b9'
-}
-
-@description('Built-in Acr Pull role (https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/containers#acrpull).')
-resource acr_pull_role 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
-    name: '7f951dda-4ed3-4680-a7ca-43fe172d538d'
-}
-
-@description('Built-in Acr Push role (https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles/containers#acrpush).')
-resource acr_push_role 'Microsoft.Authorization/roleDefinitions@2022-04-01' existing = {
-    name: '8311e382-0749-4cb8-b61a-304f252e45ec'
 }
 
 //-----------Outputs-----------//

@@ -2,29 +2,21 @@
 
 set -e
 
-PRODUCT_INFO_FILE="product_info.tar.gz"
-CWD=$(pwd)
-SCRIPT_DIR=$(dirname $(realpath "$0"))
-cd ${SCRIPT_DIR}
+product_info_file="product_info.tar.gz"
+cwd=$(pwd)
+script_dir=$(dirname $(realpath "$0"))
+cd ${script_dir}
 
 # Arguments:
-use_mi=$1
-storage_account_name=$2
-blob_container_name=$3
-
-if [ "$use_mi" = "true" ]; then
-    python3 -m ensurepip --upgrade
-    tdnf install -y tar
-    echo "Authenticating with MI..."
-    az login --identity
-fi
+storage_account_name=$1
+blob_container_name=$2
 
 # Fetch data:
-cp ../../data/${PRODUCT_INFO_FILE} .
+cp ../../data/${product_info_file} .
 
 # Unzip data:
-mkdir product_info && mv ${PRODUCT_INFO_FILE} product_info/
-cd product_info && tar -xvzf ${PRODUCT_INFO_FILE} && cd ..
+mkdir product_info && mv ${product_info_file} product_info/
+cd product_info && tar -xvzf ${product_info_file} && cd ..
 
 echo "Uploading files to blob container..."
 az storage blob upload-batch \
@@ -43,6 +35,6 @@ python3 index_setup.py
 
 # Cleanup:
 rm -rf product_info/
-cd ${CWD}
+cd ${cwd}
 
 echo "Search setup complete"

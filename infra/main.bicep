@@ -29,10 +29,6 @@ param embedding_model_name string = 'text-embedding-ada-002'
 param embedding_deployment_capacity int = 20
 
 // Deploy resources:
-module container_registry 'resources/container_registry.bicep' = {
-  name: 'deploy_container_registry'
-}
-
 module storage_account 'resources/storage_account.bicep' = {
   name: 'deploy_storage_account'
 }
@@ -66,7 +62,6 @@ module language_service 'resources/language_service.bicep' = {
 module managed_identity 'resources/managed_identity.bicep' = {
   name: 'deploy_managed_identity'
   params: {
-    container_registry_name: container_registry.outputs.name
     language_service_name: language_service.outputs.name
     openai_service_name: openai_service.outputs.name
     search_service_name: search_service.outputs.name
@@ -74,54 +69,22 @@ module managed_identity 'resources/managed_identity.bicep' = {
   }
 }
 
-// Deploy scripts:
-module container_group 'scripts/container_group.bicep' = {
-  name: 'run_data_plane_scripts'
+// Deploy container app:
+module container_group 'resources/container_group.bicep' = {
+  name: 'deploy_container_group'
   params: {
-    acr_name: container_registry.outputs.name
+    aoai_deployment: openai_service.outputs.gpt_deployment_name
     aoai_endpoint: openai_service.outputs.endpoint
+    language_endpoint: language_service.outputs.endpoint
+    managed_identity_name: managed_identity.outputs.name
+    search_endpoint: search_service.outputs.endpoint
     blob_container_name: storage_account.outputs.blob_container_name
     embedding_deployment_name: openai_service.outputs.embedding_deployment_name
     embedding_model_dimensions: openai_service.outputs.embedding_model_dimensions
     embedding_model_name: openai_service.outputs.embedding_model_name
-    language_endpoint: language_service.outputs.endpoint
-    managed_identity_name: managed_identity.outputs.name
-    search_endpoint: search_service.outputs.endpoint
     storage_account_connection_string: storage_account.outputs.connection_string
     storage_account_name: storage_account.outputs.name
   }
 }
 
-// Manually wait for scripts to complete:
-module manual_wait 'scripts/manual_wait.bicep' = {
-  name: 'run_manual_wait'
-  dependsOn: [
-    container_group
-  ]
-}
-
-// Deploy container app:
-module container_app 'resources/container_app.bicep' = {
-  name: 'deploy_container_app'
-  params: {
-    acr_name: container_registry.outputs.name
-    aoai_deployment: openai_service.outputs.gpt_deployment_name
-    aoai_endpoint: openai_service.outputs.endpoint
-    clu_deployment_name: container_group.outputs.clu_deployment_name
-    clu_project_name: container_group.outputs.clu_project_name
-    cqa_deployment_name: container_group.outputs.cqa_deployment_name
-    cqa_project_name: container_group.outputs.cqa_project_name
-    image: container_group.outputs.image
-    language_endpoint: language_service.outputs.endpoint
-    managed_identity_name: managed_identity.outputs.name
-    orchestration_deployment_name: container_group.outputs.orchestration_deployment_name
-    orchestration_project_name: container_group.outputs.orchestration_project_name
-    search_endpoint: search_service.outputs.endpoint
-    search_index_name: container_group.outputs.search_index_name
-  }
-  dependsOn: [
-    manual_wait
-  ]
-}
-
-output WEB_APP_URL string = container_app.outputs.fqdn
+output WEB_APP_URL string = container_group.outputs.fqdn
