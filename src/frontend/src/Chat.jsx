@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from 'react';
+import Markdown from 'react-markdown'
 
 const Chat = () => {
     const [messages, setMessages] = useState([]);
@@ -79,7 +80,7 @@ const Chat = () => {
                     <div key={index} tabindex="0" className={message.role === 'user' ? "message.user" : "message.agent"}>
                         <div className="message">
                             <h3 className="message-header">{message.role}</h3>
-                            <span className="message.content">{message.content}</span>
+                            <Markdown className="message.content">{message.content}</Markdown>
                         </div>
                     </div>
                 ))}

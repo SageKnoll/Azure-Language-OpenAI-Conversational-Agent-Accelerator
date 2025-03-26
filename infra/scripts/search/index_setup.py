@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 import os
-from azure.identity import DefaultAzureCredential
+from azure.identity import DefaultAzureCredential, ManagedIdentityCredential
 from azure.search.documents.indexes import SearchIndexClient, SearchIndexerClient
 from azure.search.documents.indexes.models import (
     SearchField,
@@ -27,6 +27,17 @@ from azure.search.documents.indexes.models import (
     FieldMapping
 )
 
+def get_azure_credential():
+    use_mi_auth = os.environ.get('USE_MI_AUTH', 'false').lower() == 'true'
+
+    if use_mi_auth:
+        mi_client_id = os.environ['MI_CLIENT_ID']
+        return ManagedIdentityCredential(
+            client_id=mi_client_id
+        )
+
+    return DefaultAzureCredential()
+
 aoai_endpoint = os.environ['AOAI_ENDPOINT']
 embedding_deployment_name = os.environ['EMBEDDING_DEPLOYMENT_NAME']
 embedding_model_name = os.environ['EMBEDDING_MODEL_NAME']
@@ -41,7 +52,7 @@ skillset_name = index_name + '-ss'
 indexer_name = index_name + '-idxr'
 
 endpoint = os.environ['SEARCH_ENDPOINT']
-credential = DefaultAzureCredential()
+credential = get_azure_credential()
 
 # Search index:
 index_client = SearchIndexClient(endpoint=endpoint, credential=credential)

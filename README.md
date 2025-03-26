@@ -1,6 +1,6 @@
 # Azure Language OpenAI Conversational Agent Accelerator
-| [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) | [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FAzure-Language-OpenAI-Conversational-Agent-Accelerator%2Fmain%2Finfra%2Fmain.json) |
-|---|---|---|
+| [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) | [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) |
+|---|---|
 
 This accelerator template provides users with a code-first example for creating and enhancing chat solutions and agents with deterministic, human-controllable workflows. It is designed to minimize the need for extensive prompt engineering by using a structured workflow to prioritize top questions with exact answers, prioritize top intents with deterministic processes, and use LLM to handle long tail topics. These actions help to ensure determinism and consistency. The template also provides flexibility to swap, add, or remove agents/components to tailor to your specific needs.
 
@@ -56,7 +56,7 @@ When combined with an existing `RAG` solution, adding a `UnifiedConversationOrch
 - Consistent fallback to original chat functionality with `RAG`.
 Further, users can provide their own business logic to call based on `CLU` results (e.g. with an `OrderStatus` intent and `OrderId` entity, user can include business logic to query a database to check the order status).
 
-The container app demo included with this project showcases the following chat experience:
+The container instance demo included with this project showcases the following chat experience:
 - User inputs chat dialog.
 - AOAI node preprocesses by breaking input into separate utterances.
 - Orchestrator routes each utterance to either `CLU`, `CQA`, or fallback `RAG`.
@@ -96,8 +96,8 @@ In any case, the fallback function is called if routing "failed". `CLU` route is
 QUICK DEPLOY
 </h3>
 
-| [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) | [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) | [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FAzure-Language-OpenAI-Conversational-Agent-Accelerator%2Fmain%2Finfra%2Fmain.json) |
-|---|---|---|
+| [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) | [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) |
+|---|---|
 
 ### **Prerequisites**
 To deploy this solution accelerator, ensure you have access to an [Azure subscription](https://azure.microsoft.com/free/) with the necessary permissions to create **resource groups and resources** as well as being able to create role assignments. Follow the steps in  [Azure Account Set Up](./docs/azure_account_set_up.md).
@@ -109,11 +109,8 @@ Check the [Azure Products by Region](https://azure.microsoft.com/en-us/explore/g
 - Azure AI Search
 - [Azure Semantic Search](./docs/azure_semantic_search_region.md)  
 - Storage Account
-- Container Registry
-- Container App
 - Managed Identity
-- Virtual Network
-- Virtual Machine
+- Container Instances
 
 ### **Configurable Deployment Settings**
 When you start the deployment, most parameters will have **default values**, but you can update the following settings:  
@@ -196,17 +193,6 @@ If you're not using one of the above options for opening the project, then you'l
 
 </details>
 
-<details>
-  <summary><b>Deploy with Bicep/ARM template</b></summary>
-
-### Bicep
- 
-   Click the following deployment button to create the required resources for this solution directly in your Azure Subscription.
-
-   [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure-Samples%2FAzure-Language-OpenAI-Conversational-Agent-Accelerator%2Fmain%2Finfra%2Fmain.json)          
-
-</details>
-
 ### Deploying
 
 Once you've opened the project in [Codespaces](#github-codespaces) or in [Dev Containers](#vs-code-dev-containers) or [locally](#local-environment), you can deploy it to Azure following the following steps. 
@@ -220,12 +206,6 @@ To change the `azd` parameters from the default values, follow the steps [here](
     azd auth login
     ```
 
-    #### To authenticate with Azure Developer CLI (`azd`), use the following command with your **Tenant ID**:
-
-    ```sh
-    azd auth login --tenant-id <tenant-id>
-   ```
-
 2. Provision and deploy all the resources:
 
     ```shell
@@ -234,12 +214,13 @@ To change the `azd` parameters from the default values, follow the steps [here](
 
 3. Provide an `azd` environment name (like "conv-agent")
 4. Select a subscription from your Azure account, and select a location which has quota for all the resources. 
-    * This deployment will take *10-20 minutes* to provision the resources in your account and set up the solution with sample data.
+    * This deployment will take *10-15 minutes* to provision the resources in your account and set up the solution with sample data.
+
       > **Tip:** A link to view the deployment's detailed progress in the Azure Portal shows up in your terminal window. You can open this link to see the deployment progress and go to the resource group.
     
     * If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources.
 
-5. Once the deployment has completed successfully, open the [Azure Portal](https://portal.azure.com/), go to the deployed resource group, find the Container App resource (`ca-conv-agent-app`) and get the app URL from `Application Url`.
+5. Once the deployment has completed successfully, wait a few minutes to let the app finish setting up dependencies. Then, open the [Azure Portal](https://portal.azure.com/), go to the deployed resource group, find the Container Group resource (`cg-conv-agent-app`) and get the app URL from `FQDN`.
 
 6. Test the app locally with the sample question: _What is your return policy?_. For more sample questions you can test in the application, see [Sample Questions](#sample-questions).
 
@@ -248,17 +229,28 @@ To change the `azd` parameters from the default values, follow the steps [here](
 
 ### Additional Steps
 
-1. **Add App Authentication**
+1. **Limit Access to your App**
 
-    Follow steps listed [here](https://learn.microsoft.com/en-us/azure/container-apps/authentication-entra) to configure authenitcation in thecontainer app.
+    Follow the discussion [here](https://learn.microsoft.com/en-us/answers/questions/319407/how-to-limit-access-to-a-container-running-in-cont) to run your app in a Virtual Network and limit access.
 
 2. **Deleting Resources After a Failed Deployment**
 
-     Follow steps in [Delete Resource Group](./docs/delete_resource_group.md) If your deployment fails and you need to clean up the resources.
+    Follow steps in [Delete Resource Group](./docs/delete_resource_group.md) If your deployment fails and you need to clean up the resources.
 
-3. **Deleting Temporary Resources**
+2. **Updating Example Data**
 
-    This template creates a virtual machine with a custom run command to introduce a manual wait step. The reason for this is to ensure that data plane scripts run to completion before spinning up the final container app. A virtual network, network interface card, virtual machine, and virtual machine run command are created to peform this manual wait. All of these resouces have the suffix `-manual-wait`. You may delete all resources with this suffix after a successful deployment.
+    If you wish to update the existing example project data, you can do so by updaing the files in `infra/data/`:
+    - update the intents, entities, and utterances in `clu_import.json` to modify the app's CLU project.
+    - update the questions and answers in `cqa_import.json` to modify the app's CQA project.
+    - update the files in `product_info.tar.gz` to modify the grounding data the app uses to populate a search index for `RAG`.
+
+    If you update these files, ensure that you reference new project/index names in `infra/resources/container_group.bicep`:
+    - update `param clu_project_name` if you updated CLU data.
+    - update `param cqa_project_name` if you updated CQA data.
+    - update `param orchestration_project_name` if you updated CLU or CQA data.
+    - update `param search_index_name` if you updated grounding data.
+
+    When updating example data, ensure that it adheres to [RAI guidelines](#responsible-ai-transparency-faq).
 
 ### Sample Questions
 
@@ -286,10 +278,8 @@ You can try the [Azure pricing calculator](https://azure.microsoft.com/en-us/pri
 * Azure AI Search: Standard tier, S1. Pricing is based on the number of documents and operations. [Pricing](https://azure.microsoft.com/pricing/details/search/)
 * Azure Storage Account: Standard tier, LRS. Pricing is based on storage and operations. [Pricing](https://azure.microsoft.com/pricing/details/storage/blobs/)
 * Azure OpenAI: S0 tier, defaults to gpt-4o-mini and text-embedding-ada-002 models. Pricing is based on token count. [Pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/?msockid=3d25d5a7fe346936111ec024ff8e685c)
-* Azure Container App: Consumption tier with 1 CPU, 2GiB memory/storage. Pricing is based on resource allocation, and each month allows for a certain amount of free usage. [Pricing](https://azure.microsoft.com/pricing/details/container-apps/)
-* Azure Container Registry: Basic tier. [Pricing](https://azure.microsoft.com/pricing/details/container-registry/)
-* Azure AI Langauage: S tier. [Pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/language-service/?msockid=3d25d5a7fe346936111ec024ff8e685c)
-* Azure Virtual Machine: `Standard_B1s` SKU. [Pricing](https://azure.microsoft.com/en-us/pricing/details/virtual-machines/windows/?msockid=3d25d5a7fe346936111ec024ff8e685c). Note that this is a temporary resource that can be deleted after a successful deployment. See [**Deleting Temporary Resources**](#additional-steps).
+* Azure Container Instances: Pay as you go. Container has default settings of 1 vCPU and 1 GB. [Pricing](https://azure.microsoft.com/en-us/pricing/details/container-instances/?msockid=3d25d5a7fe346936111ec024ff8e685c)
+* Azure AI Language: S tier. [Pricing](https://azure.microsoft.com/en-us/pricing/details/cognitive-services/language-service/?msockid=3d25d5a7fe346936111ec024ff8e685c)
 
 
 ⚠️ To avoid unnecessary costs, remember to take down your app if it's no longer in use,
@@ -303,13 +293,13 @@ To ensure continued best practices in your own repository, we recommend that any
 You may want to consider additional security measures, such as:
 
 * Enabling Microsoft Defender for Cloud to [secure your Azure resources](https://learn.microsoft.com/azure/security-center/defender-for-cloud).
-* Protecting the Azure Container Apps instance with a [firewall](https://learn.microsoft.com/azure/container-apps/waf-app-gateway) and/or [Virtual Network](https://learn.microsoft.com/azure/container-apps/networking?tabs=workload-profiles-env%2Cazure-cli).
+* Protecting the Azure Container Instance with a [firewall](https://learn.microsoft.com/azure/container-apps/waf-app-gateway) and/or [Virtual Network](https://learn.microsoft.com/azure/container-apps/networking?tabs=workload-profiles-env%2Cazure-cli).
 
 ## Resources
 Supporting documentation:
 - [Azure OpenAI](https://learn.microsoft.com/en-us/azure/ai-services/openai/overview)
 - [Azure AI Search](https://learn.microsoft.com/en-us/azure/search/) 
-- [Azure Container Apps](https://learn.microsoft.com/en-us/azure/container-apps/overview)
+- [Azure Container Instances](https://learn.microsoft.com/en-us/azure/container-instances/)
 - [Azure AI Language](https://learn.microsoft.com/en-us/azure/ai-services/language-service/overview)
 - [CLU](https://learn.microsoft.com/en-us/azure/ai-services/language-service/conversational-language-understanding/overview)
 - [CQA](https://learn.microsoft.com/en-us/azure/ai-services/language-service/question-answering/overview)

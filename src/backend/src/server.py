@@ -83,6 +83,7 @@ def orchestrate_chat(message: str) -> list[str]:
 
     # Break user message into separate utterances:
     utterances = extract_client.chat_completion(message)
+    print(f"Utterances: {utterances}")
     if not isinstance(utterances, list):
         try:
             utterances = json.loads(utterances)
@@ -91,7 +92,7 @@ def orchestrate_chat(message: str) -> list[str]:
             if PII_ENABLED:
                 # Clean up PII memory:
                 pii_redacter.remove(id=chat_id)
-            return [utterances],
+            return ['I am unable to respond or participate in this conversation.']
 
     # Process each utterance:
     responses = []
