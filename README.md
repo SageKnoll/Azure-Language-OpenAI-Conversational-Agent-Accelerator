@@ -2,23 +2,23 @@
 | [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) | [![Open in Dev Containers](https://img.shields.io/static/v1?style=for-the-badge&label=Dev%20Containers&message=Open&color=blue&logo=visualstudiocode)](https://vscode.dev/redirect?url=vscode://ms-vscode-remote.remote-containers/cloneInVolume?url=https://github.com/Azure-Samples/Azure-Language-OpenAI-Conversational-Agent-Accelerator) |
 |---|---|
 
-This accelerator template provides users with a code-first example for creating and enhancing chat solutions and agents with deterministic, human-controllable workflows. It is designed to minimize the need for extensive prompt engineering by using a structured workflow to prioritize top questions with exact answers and top intents with deterministic processes, and use LLM to handle long tail topics, to ensure determinism and consistency. It also provides flexibility to swap, add, or remove agents/components to tailor to your specific needs.
+This accelerator template provides users with a code-first example for creating and enhancing chat solutions and agents with deterministic, human-controllable workflows. It is designed to minimize the need for extensive prompt engineering by using a structured workflow to prioritize top questions with exact answers, prioritize top intents with deterministic processes, and use LLM to handle long tail topics. These actions help to ensure determinism and consistency. The template also provides flexibility to swap, add, or remove agents/components to tailor to your specific needs.
 
-This template is perfect for developers and organizations looking to design, customize, and manage agents that can handle complex queries, route tasks, and provide reliable answers, all with a controlled, scalable architecture, like call centers, help desks, and other customer support applications.
+This template is perfect for developers and organizations looking to design, customize, and manage agents that can handle complex queries, route tasks, and provide reliable answers, all with a controlled, scalable architecture.
 
-**Leverage the combined capabilities of Azure AI Language and Azure OpenAI for enhanced conversational agent solutions.**
 
-### Important Security Notice
+### MENU: [**FEATURES**](#features) • [**AGENT ARCHITECTURE**](#agent-architecture) • [**GETTING STARTED**](#getting-started) • [**GUIDANCE**](#guidance)
 
-This template, the application code and configuration it contains, has been built to showcase Microsoft Azure specific services and tools. We strongly advise our customers not to make this code part of their production environments without implementing or enabling additional security features.
+## Important Security Notice
 
-### MENU: [**OVERVIEW and USER STORY**](#overview) • [**QUICK DEPLOY**](#getting-started) • [**GUIDANCE**](#guidance)
-
-## Overview
-Below is a reference architecture diagram of this Agent template:
-![image](https://github.com/user-attachments/assets/8e499373-578e-41ee-a4ec-8c858964db13)
+This template, the application code and configuration it contains, have been built to showcase Microsoft Azure specific services and tools. We strongly advise our customers not to make this code part of their production environments without implementing or enabling additional security features.
 
 ## Features
+
+This solution leverages the combined capabilities of Azure AI Language and Azure OpenAI for enhanced conversational agent solutions. The following image is a reference architecture diagram of this Agent template.
+
+![image](https://github.com/user-attachments/assets/8e499373-578e-41ee-a4ec-8c858964db13)
+
 1. **Client-Side User Interface:** A web-based client-side user interface allows you to quickly explore and test this Agent template.
 2. **Triage Agent:** The Agent allows for a dynamic, adaptable workflow with multiple orchestration options including LLM function calling. 
 3. **Conversational Language Understanding (CLU) Agent:** CLU allows you to define the top intents you want to ensure response quality. Whether completing a task or addressing specific customer needs, CLU provides a mechanism to ensure the agent accurately understands and executes the process of handling pre-defined intents.
@@ -36,7 +36,7 @@ CLU can help by performing easy-to-configure and intuitive model training to map
 
 By leveraging CLU, users can enhance their conversational AI solutions, improve intent predication accuracy, making it a valuable agent/workflow routing solution.
 #### How CQA can help
-A typical RAG solution allows users to chat with an AI agent and obtained grounded responses. Chat messages are sent directly to AOAI, where a specified model (e.g. GPT-4o) processes each message and creates a response. This is beneficial when customers have their own grounding data (e.g. product manuals, company information for Q/A). They would set up an Azure AI Search index to query their grounding data, and preprocess user chat messages by fetching relevant grounding data and passing it to the AOAI model downstream. Because the model now "knows" the grounding data to base its response around, user chats are met with contextual responses, improving the chat experience.
+A typical RAG solution allows users to chat with an AI agent and obtain grounded responses. Chat messages are sent directly to AOAI, where a specified model (e.g. GPT-4o) processes each message and creates a response. This is beneficial when customers have their own grounding data (e.g. product manuals, company information for Q/A). They would set up an Azure AI Search index to query their grounding data, and preprocess user chat messages by fetching relevant grounding data and passing it to the AOAI model downstream. Because the model now "knows" the grounding data to base its response around, user chats are met with contextual responses, improving the chat experience.
 
 However, issues with RAG solutions (DSATs, or dissatisfactory examples) are hard to address. It is difficult to debug or update grounding data to fix inaccurate "grounded" responses. Further, this process can be expensive and time-consuming
 
@@ -63,7 +63,7 @@ The container instance demo included with this project showcases the following c
 - If `CLU` was called, call extended business logic based on intent/entities.
 - Agent summarizes response (what business action was performed, provide answer to question, provide grounded response).
 
-## Use Case
+### Use Case
 Consider the following real-world example: Contoso Outdoors, a fictional retail company, has an existing RAG chat solution using AOAI. Their grounding data is composed of product manuals of the outdoor gear they sell. Because of this, users can easily ask the AI chat questions regarding Contoso Outdoors products (e.g. What tents do you sell?) and obtain grounded, contextual, and accurate responses.
 However, if a user asks questions about the company's return policy, the RAG chat will not be able to respond accurately, as the grounding data does not contain any information regarding a return policy. It can be expensive and time consuming to update the grounding data to address this. Further, if a user asks a question about their online order status, even with updates of grounding data, RAG is not able to respond effectively here, as information is dynamic.
 Incorporating CLU/CQA using a UnifiedConversationOrchestrator solves these problems. Contoso Outdoors would set up a CQA model that can answer extended questions (e.g. their return policy), and set up a CLU model that can identify online order actions (e.g. checking the status of an order). Now, both of these DSATs are resolved, and Contoso Outdoors still maintains their existing RAG chat functionality, as UnifiedConversationOrchestrator falls back to the original RAG chat if CLU/CQA are not fit to respond to the user chat.
@@ -206,12 +206,6 @@ To change the `azd` parameters from the default values, follow the steps [here](
     azd auth login
     ```
 
-    #### To authenticate with Azure Developer CLI (`azd`), use the following command with your **Tenant ID**:
-
-    ```sh
-    azd auth login --tenant-id <tenant-id>
-   ```
-
 2. Provision and deploy all the resources:
 
     ```shell
@@ -220,12 +214,16 @@ To change the `azd` parameters from the default values, follow the steps [here](
 
 3. Provide an `azd` environment name (like "conv-agent")
 4. Select a subscription from your Azure account, and select a location which has quota for all the resources. 
-    * This deployment will take *10-15 minutes* to provision the resources in your account and set up the solution with sample data. 
+    * This deployment will take *10-15 minutes* to provision the resources in your account and set up the solution with sample data.
+      > **Tip:** A link to view the deployment's detailed progress in the Azure Portal shows up in your terminal window. You can open this link to see the deployment progress and go to the resource group.
+    
     * If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources.
 
-5. Once the deployment has completed successfully, please give the app ~5 minutes to finish setting up all dependencies. Then, open the [Azure Portal](https://portal.azure.com/), go to the deployed resource group, find the Container Group resource (`cg-conv-agent-app`) and get the app URL from `FQDN`.
+5. Once the deployment has completed successfully, wait a few minutes to let the app finish setting up dependencies. Then, open the [Azure Portal](https://portal.azure.com/), go to the deployed resource group, find the Container Group resource (`cg-conv-agent-app`) and get the app URL from `FQDN`.
 
-6. You can now delete the resources by running `azd down`, if you are done trying out the application. 
+6. Test the app locally with the sample question: _What is your return policy?_. For more sample questions you can test in the application, see [Sample Questions](#sample-questions).
+
+7. You can now delete the resources by running `azd down`, if you are done trying out the application. 
 <!-- 6. You can now proceed to run the [development server](#development-server) to test the app locally, or if you are done trying out the app, you can delete the resources by running `azd down`. -->
 
 ### Additional Steps
@@ -236,8 +234,22 @@ To change the `azd` parameters from the default values, follow the steps [here](
 
 2. **Deleting Resources After a Failed Deployment**
 
-     Follow steps in [Delete Resource Group](./docs/delete_resource_group.md) If your deployment fails and you need to clean up the resources.
+    Follow steps in [Delete Resource Group](./docs/delete_resource_group.md) If your deployment fails and you need to clean up the resources.
 
+2. **Updating Example Data**
+
+    If you wish to update the existing example project data, you can do so by updaing the files in `infra/data/`:
+    - update the intents, entities, and utterances in `clu_import.json` to modify the app's CLU project.
+    - update the questions and answers in `cqa_import.json` to modify the app's CQA project.
+    - update the files in `product_info.tar.gz` to modify the grounding data the app uses to populate a search index for `RAG`.
+
+    If you update these files, ensure that you reference new project/index names in `infra/resources/container_group.bicep`:
+    - update `param clu_project_name` if you updated CLU data.
+    - update `param cqa_project_name` if you updated CQA data.
+    - update `param orchestration_project_name` if you updated CLU or CQA data.
+    - update `param search_index_name` if you updated grounding data.
+
+    When updating example data, ensure that it adheres to [RAI guidelines](#responsible-ai-transparency-faq).
 
 ### Sample Questions
 
