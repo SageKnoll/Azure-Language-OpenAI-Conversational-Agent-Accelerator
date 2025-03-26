@@ -215,6 +215,7 @@ To change the `azd` parameters from the default values, follow the steps [here](
 3. Provide an `azd` environment name (like "conv-agent")
 4. Select a subscription from your Azure account, and select a location which has quota for all the resources. 
     * This deployment will take *10-15 minutes* to provision the resources in your account and set up the solution with sample data.
+
       > **Tip:** A link to view the deployment's detailed progress in the Azure Portal shows up in your terminal window. You can open this link to see the deployment progress and go to the resource group.
     
     * If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources.
