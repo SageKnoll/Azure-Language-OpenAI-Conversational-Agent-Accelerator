@@ -234,12 +234,16 @@ To change the `azd` parameters from the default values, follow the steps [here](
 
 3. Provide an `azd` environment name (like "conv-agent")
 4. Select a subscription from your Azure account, and select a location which has quota for all the resources. 
-    * This deployment will take *10-20 minutes* to provision the resources in your account and set up the solution with sample data. 
+    * This deployment will take *10-20 minutes* to provision the resources in your account and set up the solution with sample data.
+      > **Tip:** A link to view the deployment's detailed progress in the Azure Portal shows up in your terminal window. You can open this link to see the deployment progress and go to the resource group.
+    
     * If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources.
 
 5. Once the deployment has completed successfully, open the [Azure Portal](https://portal.azure.com/), go to the deployed resource group, find the Container App resource (`ca-conv-agent-app`) and get the app URL from `Application Url`.
 
-6. You can now delete the resources by running `azd down`, if you are done trying out the application. 
+6. Test the app locally with the sample question: _What is your return policy?_. For more sample questions you can test in the application, see [Sample Questions](#sample-questions).
+
+7. You can now delete the resources by running `azd down`, if you are done trying out the application. 
 <!-- 6. You can now proceed to run the [development server](#development-server) to test the app locally, or if you are done trying out the app, you can delete the resources by running `azd down`. -->
 
 ### Additional Steps
