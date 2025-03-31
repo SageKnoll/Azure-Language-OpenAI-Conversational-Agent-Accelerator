@@ -17,7 +17,7 @@ This template, the application code and configuration it contains, have been bui
 
 This solution leverages the combined capabilities of Azure AI Language and Azure OpenAI for enhanced conversational agent solutions. The following image is a reference architecture diagram of this Agent template.
 
-![image](https://github.com/user-attachments/assets/7a2f9579-734f-4425-a7a2-964843132de4)
+![image](https://github.com/user-attachments/assets/1d847138-98d2-4ae9-926a-2bb6a92dc614)
 
 1. **Client-Side User Interface:** A web-based client-side user interface allows you to quickly explore and test this Agent template.
 2. **Orchestrator:** The orchestrator allows for a dynamic, adaptable workflow with multiple orchestration options including LLM function calling. 
