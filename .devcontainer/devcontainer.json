@@ -15,7 +15,7 @@
             ]
         }
     },
-    "postStartCommand": "git pull origin main",
+    "postStartCommand": "git pull origin main && source infra/setup_azd_parameters.sh",
     "remoteUser": "vscode",
     "hostRequirements": {
         "memory": "4gb"
