@@ -1,5 +1,8 @@
+@description('Resource name suffix.')
+param suffix string
+
 @description('Name of Managed Identity resource.')
-param name string = 'id-${uniqueString(resourceGroup().id)}'
+param name string = 'id-${suffix}'
 
 @description('Location for all resources.')
 param location string = resourceGroup().location

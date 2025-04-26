@@ -1,21 +1,26 @@
-# # yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
-# metadata:
-#     template: azd-init@1.11.1
-environment:
-  name: azure-language-openai-conversational-agent
-  location: eastus2
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
 name: azure-language-openai-conversational-agent
 metadata:
   template: azure-language-openai-conversational-agent@1.0
-
-parameters:
-
-deployment:
-  mode: Incremental
-  template: ./infra/main.bicep  # Path to the main.bicep file inside the 'deployment' folder
-  parameters:
+workflows:
+  up:
+    steps:
+      - azd: provision # azd deploy not needed, as we directly provision the app below
+services:
+  app:
+    project: src
+    language: python
+    host: containerapp # containerinstance not supported
 
 hooks:
+  preprovision:
+    posix:
+      run: |
+        bash ./infra/setup_azd_parameters.sh
+      shell: bash
+      continueOnError: false
+      interactive: true
   postprovision:
     windows:
       run: |

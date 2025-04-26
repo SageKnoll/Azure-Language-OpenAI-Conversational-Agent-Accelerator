@@ -1,5 +1,8 @@
+@description('Resource name suffix.')
+param suffix string
+
 @description('Name of Language Service resource.')
-param name string = 'lang-${uniqueString(resourceGroup().id)}'
+param name string = 'lang-${suffix}'
 
 @description('Location for all resources.')
 param location string = resourceGroup().location

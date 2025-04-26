@@ -185,11 +185,12 @@ echo "Embedding model quota: $selected_embedding_quota"
 
 # Set AZD env variables:
 azd env set AZURE_ENV_GPT_MODEL_NAME $gpt_model_name
+azd env set AZURE_ENV_GPT_MODEL_CAPACITY $selected_gpt_quota
 azd env set AZURE_ENV_GPT_MODEL_DEPLOYMENT_TYPE $gpt_deployment_type
-azd env set AZURE_ENV_GPT_MODEL_QUOTA $selected_gpt_quota
 
 azd env set AZURE_ENV_EMBEDDING_MODEL_NAME $embedding_model_name
+azd env set AZURE_ENV_EMBEDDING_MODEL_CAPACITY $selected_embedding_quota
 azd env set AZURE_ENV_EMBEDDING_MODEL_DEPLOYMENT_TYPE $embedding_deployment_type
-azd env set AZURE_ENV_EMBEDDING_MODEL_QUOTA $selected_embedding_quota
 
 echo -e "\nazd parameters set"
+echo "Ensure that you deploy to $selected_region when running: azd up`
