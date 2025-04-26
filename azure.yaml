@@ -14,13 +14,6 @@ services:
     host: containerapp # containerinstance not supported
 
 hooks:
-  preprovision:
-    posix:
-      run: |
-        bash ./infra/setup_azd_parameters.sh
-      shell: bash
-      continueOnError: false
-      interactive: true
   postprovision:
     windows:
       run: |
