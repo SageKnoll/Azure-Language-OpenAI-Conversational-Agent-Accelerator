@@ -138,7 +138,7 @@ source infra/setup_azd_parameters.sh
 This will populate the above deployment settings based on your selections. The script will automatically be run when you deploy through GitHub Codespaces or VS Code Dev Containers. When you finally run `azd up`, ensure you are choosing the same region you selected here.
 
 ### [Optional] Quota Recommendations
-For demo/test purposes, we recommend model deployment capacities to be **5k tokens**. This small value ensures an adequate testing/demo experience, but is not meant for production workloads.  
+For demo/test purposes, we recommend model deployment capacities to be **20k tokens**. This small value ensures an adequate testing/demo experience, but is not meant for production workloads.  
 > **We recommend increasing the capacity for optimal performance under large loads.**
 
 **⚠️ Warning:**  **Insufficient quota can cause deployment errors.** Please ensure you have the recommended capacity or request for additional capacity before deploying this solution.
@@ -159,7 +159,7 @@ You can run this solution using GitHub Codespaces. The button will open a web-ba
 
 2. Accept the default values on the create Codespaces page.
 3. Open a terminal window if it is not already open.
-4. Follow the instructions in the helper setup script to populate deployment variables.
+4. Follow the instructions in the helper script to populate deployment variables.
 5. Continue with the [deploying steps](#deploying).
 
 </details>
@@ -178,7 +178,7 @@ You can run this solution in VS Code Dev Containers, which will open the project
 
 
 3. In the VS Code window that opens, once the project files show up (this may take several minutes), open a terminal window.
-4. Follow the instructions in the helper setup script to populate deployment variables.
+4. Follow the instructions in the helper script to populate deployment variables.
 5. Continue with the [deploying steps](#deploying).
 
 </details>
