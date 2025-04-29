@@ -133,6 +133,7 @@ For best latency performance, we recommend you choose a region close to your phy
 
 The models, deployment types, and capacities you choose may depend on the region you select. To help you in choosing what is available in your subscription, please run the helper script:
 ```
+az login
 source infra/setup_azd_parameters.sh
 ```
 This will populate the above deployment settings based on your selections. The script will automatically be run when you deploy through GitHub Codespaces or VS Code Dev Containers. When you finally run `azd up`, ensure you are choosing the same region you selected here.
@@ -203,7 +204,11 @@ If you're not using one of the above options for opening the project, then you'l
     **Note:** the above command should be run in a new folder of your choosing. You do not need to run `git clone` to download the project source code. `azd init` handles this for you.
 
 3. Open the project folder in your terminal or editor.
-4. Run the helper script to populate deployment variables: `source infra/setup_azd_parameters.sh`
+4. Run the helper script to populate deployment variables: 
+```
+az login
+source infra/setup_azd_parameters.sh
+```
 5. Continue with the [deploying steps](#deploying).
 
 </details>
