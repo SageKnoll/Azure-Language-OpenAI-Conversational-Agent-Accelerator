@@ -129,7 +129,7 @@ while true; do
     available=${valid_gpt_models[$selected_gpt_model]}
     echo -e "\nAvailable quota for $selected_gpt_model in $selected_region: $available"
 
-    read -p "Select quota amount for $selected_gpt_model deployment: " selected_gpt_quota
+    read -p "Select capacity for $selected_gpt_model deployment: " selected_gpt_quota
 
     if [ 0 -lt $selected_gpt_quota ] && [ $selected_gpt_quota -le $available ]; then
         break
@@ -158,7 +158,7 @@ while true; do
     available=${valid_embedding_models[$selected_embedding_model]}
     echo -e "\nAvailable quota for $selected_embedding_model in $selected_region: $available"
 
-    read -p "Select quota amount for $selected_embedding_model deployment: " selected_embedding_quota
+    read -p "Select capacity for $selected_embedding_model deployment: " selected_embedding_quota
 
     if [ 0 -lt $selected_embedding_quota ] && [ $selected_embedding_quota -le $available ]; then
         break
@@ -178,10 +178,10 @@ echo -e "\n--------------------------\nSummary:"
 echo "Region: $selected_region"
 echo "GPT model name: $gpt_model_name"
 echo "GPT model deployment type: $gpt_deployment_type"
-echo "GPT model quota: $selected_gpt_quota"
+echo "GPT model capacity: $selected_gpt_quota"
 echo "Embedding model name: $embedding_model_name"
 echo "Embedding model deployment type: $embedding_deployment_type"
-echo "Embedding model quota: $selected_embedding_quota"
+echo "Embedding model capacity: $selected_embedding_quota"
 
 # Set AZD env variables:
 export AZURE_ENV_GPT_MODEL_NAME=$gpt_model_name

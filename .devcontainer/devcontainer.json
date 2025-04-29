@@ -15,7 +15,7 @@
             ]
         }
     },
-    "postStartCommand": "git pull origin main && source infra/setup_azd_parameters.sh",
+    "postStartCommand": "git pull origin main && echo 'Recommended: run setup script to choose region, models, and capacities:' && echo '  az login' && echo '  source infra/setup_azd_parameters.sh'",
     "remoteUser": "vscode",
     "hostRequirements": {
         "memory": "4gb"
