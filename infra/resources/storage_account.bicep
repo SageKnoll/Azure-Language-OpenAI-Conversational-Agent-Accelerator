@@ -1,5 +1,8 @@
+@description('Resource name suffix.')
+param suffix string
+
 @description('Name of Storage Account resource.')
-param name string = 'st${uniqueString(resourceGroup().id)}'
+param name string = 'st${suffix}'
 
 @description('Location for all resources.')
 param location string = resourceGroup().location

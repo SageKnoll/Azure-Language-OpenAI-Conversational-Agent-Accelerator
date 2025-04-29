@@ -4,14 +4,30 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.34.1.11899",
-      "templateHash": "83111741257895154"
+      "version": "0.34.44.8038",
+      "templateHash": "12710070694700492341"
     }
   },
   "parameters": {
+    "gpt_model_name": {
+      "type": "string",
+      "allowedValues": [
+        "gpt-4o-mini",
+        "gpt-4o"
+      ],
+      "metadata": {
+        "description": "Name of GPT model to deploy."
+      }
+    },
+    "gpt_deployment_capacity": {
+      "type": "int",
+      "minValue": 1,
+      "metadata": {
+        "description": "Capacity of GPT model deployment."
+      }
+    },
     "gpt_deployment_type": {
       "type": "string",
-      "defaultValue": "GlobalStandard",
       "allowedValues": [
         "Standard",
         "GlobalStandard"
@@ -20,30 +36,11 @@
         "description": "GPT model deployment type."
       }
     },
-    "gpt_model_name": {
-      "type": "string",
-      "defaultValue": "gpt-4o-mini",
-      "allowedValues": [
-        "gpt-4o-mini",
-        "gpt-4o",
-        "gpt-4"
-      ],
-      "metadata": {
-        "description": "Name of GPT model to deploy."
-      }
-    },
-    "gpt_deployment_capacity": {
-      "type": "int",
-      "defaultValue": 20,
-      "metadata": {
-        "description": "Capacity of GPT model deployment."
-      }
-    },
     "embedding_model_name": {
       "type": "string",
-      "defaultValue": "text-embedding-ada-002",
       "allowedValues": [
-        "text-embedding-ada-002"
+        "text-embedding-ada-002",
+        "text-embedding-3-small"
       ],
       "metadata": {
         "description": "Name of Embedding model to deploy."
@@ -51,11 +48,24 @@
     },
     "embedding_deployment_capacity": {
       "type": "int",
-      "defaultValue": 20,
+      "minValue": 1,
       "metadata": {
         "description": "Capacity of embedding model deployment."
       }
+    },
+    "embedding_deployment_type": {
+      "type": "string",
+      "allowedValues": [
+        "Standard",
+        "GlobalStandard"
+      ],
+      "metadata": {
+        "description": "Embedding model deployment type."
+      }
     }
+  },
+  "variables": {
+    "suffix": "[uniqueString(subscription().id, resourceGroup().id, resourceGroup().location)]"
   },
   "resources": [
     {
@@ -67,20 +77,31 @@
           "scope": "inner"
         },
         "mode": "Incremental",
+        "parameters": {
+          "suffix": {
+            "value": "[variables('suffix')]"
+          }
+        },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.34.1.11899",
-              "templateHash": "137177392223245734"
+              "version": "0.34.44.8038",
+              "templateHash": "1872332378427464512"
             }
           },
           "parameters": {
+            "suffix": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource name suffix."
+              }
+            },
             "name": {
               "type": "string",
-              "defaultValue": "[format('st{0}', uniqueString(resourceGroup().id))]",
+              "defaultValue": "[format('st{0}', parameters('suffix'))]",
               "metadata": {
                 "description": "Name of Storage Account resource."
               }
@@ -167,11 +188,17 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "suffix": {
+            "value": "[variables('suffix')]"
+          },
           "gpt_model_name": {
             "value": "[parameters('gpt_model_name')]"
           },
           "gpt_deployment_capacity": {
             "value": "[parameters('gpt_deployment_capacity')]"
+          },
+          "gpt_deployment_type": {
+            "value": "[parameters('gpt_deployment_type')]"
           },
           "embedding_model_name": {
             "value": "[parameters('embedding_model_name')]"
@@ -179,8 +206,8 @@
           "embedding_deployment_capacity": {
             "value": "[parameters('embedding_deployment_capacity')]"
           },
-          "gpt_deployment_type": {
-            "value": "[parameters('gpt_deployment_type')]"
+          "embedding_deployment_type": {
+            "value": "[parameters('embedding_deployment_type')]"
           }
         },
         "template": {
@@ -189,14 +216,20 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.34.1.11899",
-              "templateHash": "10598949666387381979"
+              "version": "0.34.44.8038",
+              "templateHash": "7858573958830969320"
             }
           },
           "parameters": {
+            "suffix": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource name suffix."
+              }
+            },
             "name": {
               "type": "string",
-              "defaultValue": "[format('oai-{0}', uniqueString(resourceGroup().id))]",
+              "defaultValue": "[format('oai-{0}', parameters('suffix'))]",
               "metadata": {
                 "description": "Name of OpenAI Service resource."
               }
@@ -208,60 +241,37 @@
                 "description": "Location for all resources."
               }
             },
-            "gpt_deployment_name": {
-              "type": "string",
-              "defaultValue": "[parameters('gpt_model_name')]",
-              "metadata": {
-                "description": "Name of GPT model deployment."
-              }
-            },
-            "gpt_deployment_capacity": {
-              "type": "int",
-              "defaultValue": 20,
-              "metadata": {
-                "description": "Capacity of GPT model deployment."
-              }
-            },
             "gpt_model_name": {
               "type": "string",
-              "defaultValue": "gpt-4o-mini",
               "metadata": {
                 "description": "Name of GPT model to deploy."
               }
             },
-            "gpt_model_version": {
-              "type": "string",
-              "defaultValue": "2024-07-18",
-              "metadata": {
-                "description": "Model version of GPT model to deploy."
-              }
-            },
-            "embedding_deployment_name": {
-              "type": "string",
-              "defaultValue": "[parameters('embedding_model_name')]",
-              "metadata": {
-                "description": "Name of embedding model deployment."
-              }
-            },
-            "embedding_deployment_capacity": {
+            "gpt_deployment_capacity": {
               "type": "int",
-              "defaultValue": 20,
+              "minValue": 1,
               "metadata": {
-                "description": "Capacity of embedding model deployment."
+                "description": "Capacity of GPT model deployment."
               }
+            },
+            "gpt_deployment_type": {
+              "type": "string",
+              "allowedValues": [
+                "Standard",
+                "GlobalStandard"
+              ]
             },
             "embedding_model_name": {
               "type": "string",
-              "defaultValue": "text-embedding-ada-002",
               "metadata": {
                 "description": "Name of embedding model to deploy."
               }
             },
-            "embedding_model_version": {
-              "type": "string",
-              "defaultValue": "2",
+            "embedding_deployment_capacity": {
+              "type": "int",
+              "minValue": 1,
               "metadata": {
-                "description": "Model version of embedding model to deploy."
+                "description": "Capacity of embedding model deployment."
               }
             },
             "embedding_model_dimensions": {
@@ -271,20 +281,23 @@
                 "description": "Model dimensions of embedding model to deploy."
               }
             },
-            "gpt_deployment_type": {
-              "type": "string"
+            "embedding_deployment_type": {
+              "type": "string",
+              "allowedValues": [
+                "Standard",
+                "GlobalStandard"
+              ]
             }
           },
           "resources": [
             {
               "type": "Microsoft.CognitiveServices/accounts/deployments",
               "apiVersion": "2024-10-01",
-              "name": "[format('{0}/{1}', parameters('name'), parameters('gpt_deployment_name'))]",
+              "name": "[format('{0}/{1}', parameters('name'), parameters('gpt_model_name'))]",
               "properties": {
                 "model": {
                   "format": "OpenAI",
-                  "name": "[parameters('gpt_model_name')]",
-                  "version": "[parameters('gpt_model_version')]"
+                  "name": "[parameters('gpt_model_name')]"
                 }
               },
               "sku": {
@@ -298,21 +311,20 @@
             {
               "type": "Microsoft.CognitiveServices/accounts/deployments",
               "apiVersion": "2024-10-01",
-              "name": "[format('{0}/{1}', parameters('name'), parameters('embedding_deployment_name'))]",
+              "name": "[format('{0}/{1}', parameters('name'), parameters('embedding_model_name'))]",
               "properties": {
                 "model": {
                   "format": "OpenAI",
-                  "name": "[parameters('embedding_model_name')]",
-                  "version": "[parameters('embedding_model_version')]"
+                  "name": "[parameters('embedding_model_name')]"
                 }
               },
               "sku": {
-                "name": "Standard",
+                "name": "[parameters('embedding_deployment_type')]",
                 "capacity": "[parameters('embedding_deployment_capacity')]"
               },
               "dependsOn": [
-                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('name'), parameters('gpt_deployment_name'))]",
-                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('name'))]"
+                "[resourceId('Microsoft.CognitiveServices/accounts', parameters('name'))]",
+                "[resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('name'), parameters('gpt_model_name'))]"
               ]
             },
             {
@@ -349,15 +361,15 @@
             },
             "gpt_deployment_name": {
               "type": "string",
-              "value": "[parameters('gpt_deployment_name')]"
+              "value": "[parameters('gpt_model_name')]"
             },
             "embedding_deployment_name": {
               "type": "string",
-              "value": "[parameters('embedding_deployment_name')]"
+              "value": "[parameters('embedding_model_name')]"
             },
             "embedding_model_name": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('name'), parameters('embedding_deployment_name')), '2024-10-01').model.name]"
+              "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts/deployments', parameters('name'), parameters('embedding_model_name')), '2024-10-01').model.name]"
             },
             "embedding_model_dimensions": {
               "type": "int",
@@ -377,6 +389,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "suffix": {
+            "value": "[variables('suffix')]"
+          },
           "storage_account_name": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_storage_account'), '2022-09-01').outputs.name.value]"
           },
@@ -390,14 +405,20 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.34.1.11899",
-              "templateHash": "13062187104874601962"
+              "version": "0.34.44.8038",
+              "templateHash": "16283336025318466483"
             }
           },
           "parameters": {
+            "suffix": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource name suffix."
+              }
+            },
             "name": {
               "type": "string",
-              "defaultValue": "[format('srch-{0}', uniqueString(resourceGroup().id))]",
+              "defaultValue": "[format('srch-{0}', parameters('suffix'))]",
               "metadata": {
                 "description": "Name of AI Search resource."
               }
@@ -505,6 +526,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "suffix": {
+            "value": "[variables('suffix')]"
+          },
           "search_service_name": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_search_service'), '2022-09-01').outputs.name.value]"
           }
@@ -515,14 +539,20 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.34.1.11899",
-              "templateHash": "13115155874103951633"
+              "version": "0.34.44.8038",
+              "templateHash": "6390213759206284697"
             }
           },
           "parameters": {
+            "suffix": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource name suffix."
+              }
+            },
             "name": {
               "type": "string",
-              "defaultValue": "[format('lang-{0}', uniqueString(resourceGroup().id))]",
+              "defaultValue": "[format('lang-{0}', parameters('suffix'))]",
               "metadata": {
                 "description": "Name of Language Service resource."
               }
@@ -608,6 +638,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "suffix": {
+            "value": "[variables('suffix')]"
+          },
           "language_service_name": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_language_service'), '2022-09-01').outputs.name.value]"
           },
@@ -627,14 +660,20 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.34.1.11899",
-              "templateHash": "9102893839438030816"
+              "version": "0.34.44.8038",
+              "templateHash": "10207550173647019820"
             }
           },
           "parameters": {
+            "suffix": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource name suffix."
+              }
+            },
             "name": {
               "type": "string",
-              "defaultValue": "[format('id-{0}', uniqueString(resourceGroup().id))]",
+              "defaultValue": "[format('id-{0}', parameters('suffix'))]",
               "metadata": {
                 "description": "Name of Managed Identity resource."
               }
@@ -774,6 +813,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "suffix": {
+            "value": "[variables('suffix')]"
+          },
           "aoai_deployment": {
             "value": "[reference(resourceId('Microsoft.Resources/deployments', 'deploy_openai_service'), '2022-09-01').outputs.gpt_deployment_name.value]"
           },
@@ -814,11 +856,24 @@
           "metadata": {
             "_generator": {
               "name": "bicep",
-              "version": "0.34.1.11899",
-              "templateHash": "17507173849805273791"
+              "version": "0.34.44.8038",
+              "templateHash": "5285289074414472361"
             }
           },
           "parameters": {
+            "suffix": {
+              "type": "string",
+              "metadata": {
+                "description": "Resource name suffix."
+              }
+            },
+            "name": {
+              "type": "string",
+              "defaultValue": "[format('cg-{0}', parameters('suffix'))]",
+              "metadata": {
+                "description": "Name of Container Group resource."
+              }
+            },
             "location": {
               "type": "string",
               "defaultValue": "[resourceGroup().location]",
@@ -950,7 +1005,7 @@
             {
               "type": "Microsoft.ContainerInstance/containerGroups",
               "apiVersion": "2024-10-01-preview",
-              "name": "[format('cg-{0}', uniqueString(resourceGroup().id))]",
+              "name": "[parameters('name')]",
               "location": "[parameters('location')]",
               "identity": {
                 "type": "UserAssigned",
@@ -1132,7 +1187,7 @@
           "outputs": {
             "fqdn": {
               "type": "string",
-              "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups', format('cg-{0}', uniqueString(resourceGroup().id))), '2024-10-01-preview').ipAddress.fqdn]"
+              "value": "[reference(resourceId('Microsoft.ContainerInstance/containerGroups', parameters('name')), '2024-10-01-preview').ipAddress.fqdn]"
             }
           }
         }

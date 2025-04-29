@@ -1,5 +1,8 @@
+@description('Resource name suffix.')
+param suffix string
+
 @description('Name of AI Search resource.')
-param name string = 'srch-${uniqueString(resourceGroup().id)}'
+param name string = 'srch-${suffix}'
 
 @description('Location for all resources.')
 param location string = resourceGroup().location

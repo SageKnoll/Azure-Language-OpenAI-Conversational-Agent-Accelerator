@@ -102,34 +102,44 @@ QUICK DEPLOY
 |---|---|
 
 ### **Prerequisites**
-To deploy this solution accelerator, ensure you have access to an [Azure subscription](https://azure.microsoft.com/free/) with the necessary permissions to create **resource groups and resources** as well as being able to create role assignments. Follow the steps in  [Azure Account Set Up](./docs/azure_account_set_up.md).
+To deploy this solution accelerator, ensure you have access to an [Azure subscription](https://azure.microsoft.com/free/) with the necessary permissions to create **resource groups and resources** as well as being able to create role assignments. Follow the steps in  [Azure Account Set Up](./docs/azure_account_set_up.md). We recommend you have `Owner` permissions on the subscription you are deploying this template to (though more minimal permissions will suffice as well).
 
-Check the [Azure Products by Region](https://azure.microsoft.com/en-us/explore/global-infrastructure/products-by-region/?products=all&regions=all) page and select a **region** where the following services are available (e.g. EastUS2):  
+### Region Selection
+The following regions should support all Azure dependencies (except possibly AOAI model support) for this template:
+- `australiaeast`
+- `centralindia`
+- `eastus`
+- `eastus2`
+- `northeurope`
+- `southcentralus`
+- `switzerlandnorth`
+- `uksouth`
+- `westeurope`
+- `westus2`
+- `westus3`
 
-- Azure OpenAI
-- Azure AI Language
-- Azure AI Search
-- [Azure Semantic Search](./docs/azure_semantic_search_region.md)  
-- Storage Account
-- Managed Identity
-- Container Instances
+For best latency performance, we recommend you choose a region close to your physical geography.
 
 ### **Configurable Deployment Settings**
-When you start the deployment, most parameters will have **default values**, but you can update the following settings:  
 
 | **Setting** | **Description** |  **Default value** |
 |------------|----------------|  ------------|
+| **GPT Model Name** | `gpt-4o` or `gpt-4o-mini` | `gpt-4o-mini` |  
+| **GPT Model Deployment Capacity** | Configure capacity for **GPT model deployment** | `5k` |
 | **GPT Deployment Type** | `GlobalStandard` or `Standard` |  `GlobalStandard` |
-| **GPT Model Name** |  `gpt-4`, `gpt-4o`, or `gpt-4o-mini` | `gpt-4o-mini` |  
-| **GPT Model Deployment Capacity** | Configure capacity for **GPT model deployment** | `20k` |
-| **Embedding Model name** | Default: `text-embedding-ada-002` | `text-embedding-ada-002` |
-| **Embedding Model Capacity** | Configure capacity for **embedding model deployment** |  `20k` |
+| **Embedding Model name** | `text-embedding-ada-002` or `text-embedding-3-small` | `text-embedding-ada-002` |
+| **Embedding Model Capacity** | Configure capacity for **embedding model deployment** |  `5k` |
+| **Embedding Deployment Type** | `GlobalStandard` or `Standard` |  `GlobalStandard` |
 
-### [Optional] Quota Recommendations  
-By default, model deployment capacities are set to **20k tokens**. This small value ensures an adequate testing/demo experience, but is not meant for production workloads.  
-> **We recommend increasing the capacity for optimal performance under large loads.** 
+The models, deployment types, and capacities you choose may depend on the region you select. To help you in choosing what is available in your subscription, please run the helper script:
+```
+source infra/setup_azd_parameters.sh
+```
+This will populate the above deployment settings based on your selections. The script will automatically be run when you deploy through GitHub Codespaces or VS Code Dev Containers. When you finally run `azd up`, ensure you are choosing the same region you selected here.
 
-To adjust quota settings, follow these [steps](./docs/check_quota_settings.md)  
+### [Optional] Quota Recommendations
+For demo/test purposes, we recommend model deployment capacities to be **20k tokens**. This small value ensures an adequate testing/demo experience, but is not meant for production workloads.  
+> **We recommend increasing the capacity for optimal performance under large loads.**
 
 **⚠️ Warning:**  **Insufficient quota can cause deployment errors.** Please ensure you have the recommended capacity or request for additional capacity before deploying this solution.
 
@@ -149,7 +159,8 @@ You can run this solution using GitHub Codespaces. The button will open a web-ba
 
 2. Accept the default values on the create Codespaces page.
 3. Open a terminal window if it is not already open.
-4. Continue with the [deploying steps](#deploying).
+4. Follow the instructions in the helper script to populate deployment variables.
+5. Continue with the [deploying steps](#deploying).
 
 </details>
 
@@ -167,7 +178,8 @@ You can run this solution in VS Code Dev Containers, which will open the project
 
 
 3. In the VS Code window that opens, once the project files show up (this may take several minutes), open a terminal window.
-4. Continue with the [deploying steps](#deploying).
+4. Follow the instructions in the helper script to populate deployment variables.
+5. Continue with the [deploying steps](#deploying).
 
 </details>
 
@@ -180,6 +192,7 @@ If you're not using one of the above options for opening the project, then you'l
 
 1. Make sure the following tools are installed:
 
+    * `bash`
     * [Azure Developer CLI (azd)](https://aka.ms/install-azd)
 
 2. Download the project code:
@@ -190,8 +203,8 @@ If you're not using one of the above options for opening the project, then you'l
     **Note:** the above command should be run in a new folder of your choosing. You do not need to run `git clone` to download the project source code. `azd init` handles this for you.
 
 3. Open the project folder in your terminal or editor.
-
-4. Continue with the [deploying steps](#deploying).
+4. Run the helper script to populate deployment variables: `source infra/setup_azd_parameters.sh`
+5. Continue with the [deploying steps](#deploying).
 
 </details>
 
@@ -222,9 +235,11 @@ To change the `azd` parameters from the default values, follow the steps [here](
     
     * If you get an error or timeout with deployment, changing the location can help, as there may be availability constraints for the resources.
 
-5. Once the deployment has completed successfully, wait a few minutes to let the app finish setting up dependencies. Then, open the [Azure Portal](https://portal.azure.com/), go to the deployed resource group, find the Container Group resource (`cg-conv-agent-app`) and get the app URL from `FQDN`.
+5. Once the deployment has completed successfully, **wait a few minutes (~5) to let the app finish setting up dependencies**. Then, open the [Azure Portal](https://portal.azure.com/), go to the deployed resource group, find the Container Group resource (`cg-<unique-identifier>`) and get the app URL from `FQDN`.
 
 6. Test the app locally with the sample question: _What is your return policy?_. For more sample questions you can test in the application, see [Sample Questions](#sample-questions).
+
+    6a. If you are encountering issues viewing the web app, try waiting a few more minutes for the app to set up. If you still have issues, view the container logs of the Container Group resource in the Azure Portal. Make sure to include this information when opening any issues on the template.
 
 7. You can now delete the resources by running `azd down`, if you are done trying out the application. 
 <!-- 6. You can now proceed to run the [development server](#development-server) to test the app locally, or if you are done trying out the app, you can delete the resources by running `azd down`. -->
@@ -252,7 +267,7 @@ To change the `azd` parameters from the default values, follow the steps [here](
     - update `param orchestration_project_name` if you updated CLU or CQA data.
     - update `param search_index_name` if you updated grounding data.
 
-    When updating example data, ensure that it adheres to [RAI guidelines](#responsible-ai-transparency-faq).
+    When updating example data, ensure that it adheres to [RAI guidelines](#responsible-ai-transparency-faq). Run `azd up` again to update the web app.
 
 ### Sample Questions
 

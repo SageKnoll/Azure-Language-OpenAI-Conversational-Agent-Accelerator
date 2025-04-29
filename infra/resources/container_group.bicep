@@ -1,3 +1,9 @@
+@description('Resource name suffix.')
+param suffix string
+
+@description('Name of Container Group resource.')
+param name string = 'cg-${suffix}'
+
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
@@ -50,7 +56,7 @@ resource managed_identity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023
 }
 
 resource container_group 'Microsoft.ContainerInstance/containerGroups@2024-10-01-preview' = {
-  name: 'cg-conv-agent-app'
+  name: name
   location: location
   identity: {
     type: 'UserAssigned'
