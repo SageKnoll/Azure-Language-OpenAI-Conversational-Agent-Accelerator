@@ -7,12 +7,11 @@ workflows:
   up:
     steps:
       - azd: provision # azd deploy not needed, as we directly provision the app below
-services:
-  app:
-    project: src
-    language: python
-    host: containerapp # containerinstance not supported
-
+# services:
+#   app:
+#     project: src
+#     language: python
+#     host: containerapp # containerinstance not supported
 hooks:
   postprovision:
     windows:
