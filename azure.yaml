@@ -3,10 +3,10 @@
 name: azure-language-openai-conversational-agent
 metadata:
   template: azure-language-openai-conversational-agent@1.0
-workflows:
-  up:
-    steps:
-      - azd: provision # azd deploy not needed, as we directly provision the app below
+# workflows:
+#   up:
+#     steps:
+#       - azd: provision # azd deploy not needed, as we directly provision the app below
 # services:
 #   app:
 #     project: src
