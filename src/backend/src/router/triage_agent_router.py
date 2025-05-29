@@ -19,14 +19,14 @@ def create_triage_agent_router() -> Callable[[str, str, str], dict]:
     """
     Create triage agent router.
     """
-    project_endpoint = "https://yaoswal-ai-agent-resource.services.ai.azure.com/api/projects/yaoswal-ai-agent"#os.environ.get("AZURE_LANGUAGE_ENDPOINT")
+    project_endpoint = os.environ.get("AGENTS_PROJECT_ENDPOINT")
     credential = get_azure_credential()
     agents_client = AgentsClient(
         endpoint=project_endpoint,
         credential=credential,
         api_version="2025-05-15-preview"
     )
-    agent_id = "asst_NpuAjmISpqJk5CqkdIz9SgYi"#os.environ.get("AZURE_AGENT_ID")
+    agent_id = os.environ.get("TRIAGE_AGENT_ID")
     agent = agents_client.get_agent(agent_id=agent_id)
 
     def triage_agent_router(

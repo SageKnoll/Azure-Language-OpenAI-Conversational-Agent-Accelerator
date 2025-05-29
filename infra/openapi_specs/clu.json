@@ -15,11 +15,6 @@
       "url": "${language_resource_url}/language"
     }
   ],
-  "security": [
-    {
-      "${language.resourceConnectionName}": []
-    }
-  ],
   "tags": [],
   "paths": {
     "/:analyze-conversations": {
@@ -83,14 +78,6 @@
     }
   },
   "components": {
-    "securitySchemes": {
-      "${language.resourceConnectionName}": {
-        "type": "apiKey",
-        "description": "A subscription key for a Language service resource.",
-        "name": "ocp-apim-subscription-key",
-        "in": "header"
-      }
-    },
     "schemas": {
       "AgeResolution": {
         "required": [

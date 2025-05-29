@@ -2,15 +2,19 @@ import json
 import os
 import yaml
 from azure.ai.agents import AgentsClient
-from azure.ai.agents.models import ListSortOrder, OpenApiTool, OpenApiConnectionAuthDetails, OpenApiConnectionSecurityScheme
+from azure.ai.agents.models import OpenApiTool, OpenApiManagedAuthDetails,OpenApiManagedSecurityScheme
 from azure.identity import DefaultAzureCredential
 from utils import bind_parameters
 
-config = yaml.safe_load(open("./config.yaml", "r"))
+config = {}
 
-project_endpoint = "https://yaoswal-ai-agent-resource.services.ai.azure.com/api/projects/yaoswal-ai-agent" #os.environ.get("FOUNDRY_PROJECT_ENDPOINT")
-connection_id = "/subscriptions/fecacd8c-07e7-4fad-a455-f65af8db70b3/resourceGroups/rg-yaoswal-7856/providers/Microsoft.CognitiveServices/accounts/yaoswal-ai-agent-resource/projects/yaoswal-ai-agent/connections/yaoswalcustomkey" #os.environ.get("FOUNDRY_CONNECTION_ID")
-model_name = "gpt-4o" #os.environ.get("FOUNDRY_MODEL_NAME")
+project_endpoint = os.environ.get("AGENTS_PROJECT_ENDPOINT")
+model_name = os.environ.get("GPT_MODEL_NAME")
+config['language_resource_url'] = os.environ.get("LANGUAGE_ENDPOINT")
+config['clu_project_name'] = os.environ.get("CLU_PROJECT_NAME")
+config['clu_deployment_name'] = os.environ.get("CLU_DEPLOYMENT_NAME")
+config['cqa_project_name'] = os.environ.get("CQA_PROJECT_NAME")
+config['cqa_deployment_name'] = os.environ.get("CQA_DEPLOYMENT_NAME")
 
 # Create agent client
 agents_client = AgentsClient(
@@ -20,7 +24,7 @@ agents_client = AgentsClient(
 )
 
 # Set up the auth details for the OpenAPI connection
-auth = OpenApiConnectionAuthDetails(security_scheme=OpenApiConnectionSecurityScheme(connection_id=connection_id))
+auth = OpenApiManagedAuthDetails(security_scheme=OpenApiManagedSecurityScheme(audience="https://cognitiveservices.azure.com/"))
 
 # Read in the OpenAPI spec from a file
 with open("./clu.json", "r") as f:
@@ -71,3 +75,4 @@ with agents_client:
     )
 
     print(f"Created agent, ID: {agent.id}")
+    os.environ['TRIAGE_AGENT_ID'] = agent.id

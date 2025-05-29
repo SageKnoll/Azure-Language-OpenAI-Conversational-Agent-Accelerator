@@ -10,11 +10,6 @@
       "url": "${language_resource_url}/language"
     }
   ],
-  "security": [
-    {
-      "${language_resource_connection_name}": []
-    }
-  ],
   "paths": {
     "/:query-knowledgebases": {
       "post": {
@@ -98,14 +93,6 @@
     
   },
   "components": {
-    "securitySchemes": {
-      "${language_resource_connection_name}": {
-        "type": "apiKey",
-        "description": "A subscription key for a Language service resource.",
-        "name": "ocp-apim-subscription-key",
-        "in": "header"
-      }
-    },
     "schemas": {
       "QueryKBInput": {
         "type": "object",

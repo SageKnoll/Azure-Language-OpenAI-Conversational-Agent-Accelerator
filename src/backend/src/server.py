@@ -17,7 +17,6 @@ app = Flask(__name__, static_url_path='',
             static_folder='dist',
             template_folder='dist')
 
-"""
 # RAG AOAI client:
 search_client = SearchClient(
     endpoint=os.environ.get("SEARCH_ENDPOINT"),
@@ -38,7 +37,6 @@ extract_client = AOAIClient(
     deployment=os.environ.get("AOAI_DEPLOYMENT"),
     system_message=extract_prompt
 )
-"""
 
 # PII:
 PII_ENABLED = os.environ.get("PII_ENABLED", "false").lower() == "true"
@@ -66,7 +64,7 @@ def fallback_function(
 
 
 # Unified-Conversation-Orchestrator:
-router_type = RouterType.TRIAGE_AGENT#RouterType(os.environ.get("ROUTER_TYPE", "BYPASS"))
+router_type = RouterType(os.environ.get("ROUTER_TYPE", "BYPASS"))
 orchestrator = UnifiedConversationOrchestrator(
     router_type=router_type,
     fallback_function=fallback_function
