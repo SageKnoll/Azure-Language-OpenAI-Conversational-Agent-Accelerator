@@ -9,7 +9,7 @@ from utils import bind_parameters
 config = {}
 
 project_endpoint = os.environ.get("AGENTS_PROJECT_ENDPOINT")
-model_name = os.environ.get("GPT_MODEL_NAME")
+model_name = os.environ.get("AZURE_ENV_GPT_MODEL_NAME")
 config['language_resource_url'] = os.environ.get("LANGUAGE_ENDPOINT")
 config['clu_project_name'] = os.environ.get("CLU_PROJECT_NAME")
 config['clu_deployment_name'] = os.environ.get("CLU_DEPLOYMENT_NAME")
