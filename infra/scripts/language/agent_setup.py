@@ -65,7 +65,10 @@ with agents_client:
         """
 
     instructions = bind_parameters(instructions, config)
+
+    print(f"agents_endpoint: {project_endpoint}")
     print(f"model_name: {model_name}")
+    print(f"AZURE_ENV_GPT_MODEL_NAME: {os.environ.get("AZURE_ENV_GPT_MODEL_NAME")}")
     # Create the agent
     agent = agents_client.create_agent(
         model=model_name,
