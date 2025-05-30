@@ -65,7 +65,7 @@ with agents_client:
         """
 
     instructions = bind_parameters(instructions, config)
-
+    print(f"model_name: {model_name}")
     # Create the agent
     agent = agents_client.create_agent(
         model=model_name,
