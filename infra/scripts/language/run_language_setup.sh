@@ -8,6 +8,7 @@ cd ${script_dir}
 
 # Fetch data:
 cp ../../data/*.json .
+cp ../../openapi_specs/*.json .
 
 # Install requirements:
 echo "Installing requirements..."
