@@ -9,7 +9,7 @@ from utils import bind_parameters
 config = {}
 
 project_endpoint = os.environ.get("AGENTS_PROJECT_ENDPOINT")
-model_name = os.environ.get("AZURE_ENV_GPT_MODEL_NAME")
+model_name = os.environ.get("AOAI_DEPLOYMENT")
 config['language_resource_url'] = os.environ.get("LANGUAGE_ENDPOINT")
 config['clu_project_name'] = os.environ.get("CLU_PROJECT_NAME")
 config['clu_deployment_name'] = os.environ.get("CLU_DEPLOYMENT_NAME")
@@ -71,7 +71,7 @@ with agents_client:
     print(f"AZURE_ENV_GPT_MODEL_NAME: {os.environ.get('AZURE_ENV_GPT_MODEL_NAME')}")
     # Create the agent
     agent = agents_client.create_agent(
-        model="gpt-4o-mini",
+        model=model_name,
         name="Intent Routing Agent",
         instructions=instructions,
         tools=cqa_api_tool.definitions + clu_api_tool.definitions

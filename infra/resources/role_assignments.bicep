@@ -110,7 +110,7 @@ resource mi_cognitive_services_language_owner_role_assignment 'Microsoft.Authori
 // PRINCIPAL: AI Foundry (OpenAI)
 resource foundry_cognitive_services_language_owner_role_assignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(ai_foundry.id, ai_foundry.id, cognitive_services_language_owner_role.id)
-  scope: search_service
+  scope: ai_foundry
   properties: {
     principalId: ai_foundry.identity.principalId
     roleDefinitionId: cognitive_services_language_owner_role.id

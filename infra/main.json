@@ -1037,10 +1037,6 @@
                           "value": "[parameters('agents_project_endpoint')]"
                         },
                         {
-                          "name": "GPT_MODEL_NAME",
-                          "value": "[parameters('gpt_model_name')]"
-                        }
-                        {
                           "name": "USE_MI_AUTH",
                           "value": "true"
                         },

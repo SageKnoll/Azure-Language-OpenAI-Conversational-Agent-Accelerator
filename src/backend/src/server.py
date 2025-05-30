@@ -144,7 +144,7 @@ def orchestrate_chat(message: str) -> list[str]:
 
 @app.route("/")
 def home_page():
-    return render_template("/workspaces/Azure-Language-OpenAI-Conversational-Agent-Accelerator/src/backend/src/index.html")
+    return render_template("index.html")
 
 
 @app.route("/chat", methods=['POST'])
