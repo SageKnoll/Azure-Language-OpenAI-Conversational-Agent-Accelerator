@@ -12,7 +12,7 @@ Azure AI Language PII recognition, redaction, and reconstruction.
 CATEGORIES = os.environ.get("PII_CATEGORIES", "").upper().split(",")
 CONFIDENCE_THRESHOLD = float(os.environ.get("PII_CONFIDENCE_THRESHOLD", "0.5"))
 TA_CLIENT = TextAnalyticsClient(
-    endpoint=os.environ.get("LANGUAGE_ENDPOINT"),
+    endpoint="https://yaoswal-ai-agent-resource.services.ai.azure.com",#os.environ.get("LANGUAGE_ENDPOINT"),
     credential=get_azure_credential()
 )
 

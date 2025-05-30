@@ -20,6 +20,8 @@ echo "Running CQA setup..."
 python3 cqa_setup.py
 echo "Running Orchestration setup..."
 python3 orchestration_setup.py
+echo "Running agent setup..."
+python3 agent_setup.py
 
 # Cleanup:
 rm *.json
