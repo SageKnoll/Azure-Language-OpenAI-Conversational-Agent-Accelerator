@@ -120,7 +120,7 @@ resource mi_azure_ai_account_owner_role_assignment 'Microsoft.Authorization/role
 
 // PRINCIPAL: Managed Identity
 resource mi_azure_ai_account_user_role_assignment 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(ai_foundry.id, managed_identity.id, azure_ai_account_owner_role.id)
+  name: guid(ai_foundry.id, managed_identity.id, azure_ai_account_user_role.id)
   scope: ai_foundry
   properties: {
     principalId: managed_identity.properties.principalId
