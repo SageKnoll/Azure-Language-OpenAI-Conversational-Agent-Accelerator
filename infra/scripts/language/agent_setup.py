@@ -71,7 +71,7 @@ with agents_client:
     print(f"AZURE_ENV_GPT_MODEL_NAME: {os.environ.get('AZURE_ENV_GPT_MODEL_NAME')}")
     # Create the agent
     agent = agents_client.create_agent(
-        model=model_name,
+        model="gpt-4o-mini",
         name="Intent Routing Agent",
         instructions=instructions,
         tools=cqa_api_tool.definitions + clu_api_tool.definitions
