@@ -69,6 +69,17 @@ with agents_client:
     print(f"agents_endpoint: {project_endpoint}")
     print(f"model_name: {model_name}")
     print(f"AZURE_ENV_GPT_MODEL_NAME: {os.environ.get('AZURE_ENV_GPT_MODEL_NAME')}")
+
+    # List all existing agents
+    existing_agents = agents_client.list_agents()
+
+    # Delete all old agents with the same target name to avoid inconsistencies
+    for agent in existing_agents:
+        if agent.name == "Intent Routing Agent":
+            print(f"Deleting existing agent with ID: {agent.id}")
+            agents_client.delete_agent(agent.id)
+            print(f"Deleted agent with ID: {agent.id}")
+
     # Create the agent
     agent = agents_client.create_agent(
         model=model_name,
@@ -78,4 +89,8 @@ with agents_client:
     )
 
     print(f"Created agent, ID: {agent.id}")
-    os.environ['TRIAGE_AGENT_ID'] = agent.id
+
+    # Output the agent ID as the last stdout line
+    print(agent.id)
+
+    #os.environ['TRIAGE_AGENT_ID'] = agent.id
