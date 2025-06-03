@@ -22,8 +22,8 @@ python3 cqa_setup.py
 echo "Running Orchestration setup..."
 python3 orchestration_setup.py
 echo "Running agent setup..."
-TRIAGE_AGENT_ID=$(python3 agent_setup.py | tee /dev/tty | tail -n1)
-echo "Captured TRIAGE_AGENT_id: $TRIAGE_AGENT_ID"
+TRIAGE_AGENT_ID=$(python3 agent_setup.py | tail -n1)
+echo "Captured TRIAGE_AGENT_ID: $TRIAGE_AGENT_ID"
 export TRIAGE_AGENT_ID
 # python3 agent_setup.py
 
