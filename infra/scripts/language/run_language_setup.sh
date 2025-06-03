@@ -3,7 +3,6 @@
 set -e
 
 cwd=$(pwd)
-#script_dir=$(dirname $(realpath "$0"))
 
 if [[ "${BASH_SOURCE[0]}" != "${0}" ]]; then
     # Script is being sourced
@@ -34,7 +33,6 @@ echo "Running agent setup..."
 TRIAGE_AGENT_ID=$(python3 agent_setup.py | tail -n1)
 echo "Captured TRIAGE_AGENT_ID: $TRIAGE_AGENT_ID"
 export TRIAGE_AGENT_ID
-# python3 agent_setup.py
 
 # Cleanup:
 rm *.json

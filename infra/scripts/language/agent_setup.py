@@ -90,7 +90,5 @@ with agents_client:
 
     print(f"Created agent, ID: {agent.id}")
 
-    # Output the agent ID as the last stdout line
+    # Output the agent ID to be captured as env variable
     print(agent.id)
-
-    #os.environ['TRIAGE_AGENT_ID'] = agent.id
