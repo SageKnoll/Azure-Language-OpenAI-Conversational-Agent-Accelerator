@@ -33,8 +33,6 @@ echo "Running setup..."
 source language/run_language_setup.sh
 bash search/run_search_setup.sh ${STORAGE_ACCOUNT_NAME} ${BLOB_CONTAINER_NAME}
 
-echo "Annabel: ${TRIAGE_AGENT_ID}"
-
 # Build UI:
 echo "Building UI..."
 cd ${frontend_dir}

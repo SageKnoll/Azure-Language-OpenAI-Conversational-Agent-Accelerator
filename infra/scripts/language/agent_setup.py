@@ -51,6 +51,10 @@ cqa_api_tool = OpenApiTool(
 
 # Create an Agent with OpenApi tool and process Agent run
 with agents_client:
+    # Define agent name constant
+    AGENT_NAME = "Intent Routing Agent"
+
+    # Define the instructions for the agent
     instructions = """
         You are a triage agent. Your goal is to answer questions and redirect message according to their intent. You have at your disposition 2 tools:
         1. cqa_api: to answer customer questions such as procedures and FAQs.
@@ -70,20 +74,24 @@ with agents_client:
     print(f"model_name: {model_name}")
     print(f"AZURE_ENV_GPT_MODEL_NAME: {os.environ.get('AZURE_ENV_GPT_MODEL_NAME')}")
 
-    # List all existing agents
-    existing_agents = agents_client.list_agents()
+    # Flag to determine if old agents should be deleted
+    SHOULD_DELETE_OLD_AGENTS = os.environ.get("SHOULD_DELETE_OLD_AGENTS")
 
-    # Delete all old agents with the same target name to avoid inconsistencies
-    for agent in existing_agents:
-        if agent.name == "Intent Routing Agent":
-            print(f"Deleting existing agent with ID: {agent.id}")
-            agents_client.delete_agent(agent.id)
-            print(f"Deleted agent with ID: {agent.id}")
+    if SHOULD_DELETE_OLD_AGENTS:
+        # List all existing agents
+        existing_agents = agents_client.list_agents()
+
+        # Delete all old agents with the same target name to avoid inconsistencies
+        for agent in existing_agents:
+            if agent.name == AGENT_NAME:
+                print(f"Deleting existing agent with ID: {agent.id}")
+                agents_client.delete_agent(agent.id)
+                print(f"Deleted agent with ID: {agent.id}")
 
     # Create the agent
     agent = agents_client.create_agent(
         model=model_name,
-        name="Intent Routing Agent",
+        name=AGENT_NAME,
         instructions=instructions,
         tools=cqa_api_tool.definitions + clu_api_tool.definitions
     )
