@@ -108,6 +108,9 @@ module container_instance 'resources/container_instance.bicep' = {
     storage_account_connection_string: storage_account.outputs.connection_string
     storage_account_name: storage_account.outputs.name
   }
+  dependsOn: [
+    role_assignments
+  ]
 }
 
 output WEB_APP_URL string = container_instance.outputs.fqdn
