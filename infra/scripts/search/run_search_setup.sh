@@ -15,7 +15,10 @@ blob_container_name=$2
 cp ../../data/${product_info_file} .
 
 # Unzip data:
-mkdir product_info && mv ${product_info_file} product_info/
+if [ ! -d "product_info" ]; then
+    mkdir product_info
+fi
+mv ${product_info_file} product_info/
 cd product_info && tar -xvzf ${product_info_file} && cd ..
 
 # Upload data to storage account blob container:
