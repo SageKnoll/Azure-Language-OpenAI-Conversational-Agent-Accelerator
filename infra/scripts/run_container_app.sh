@@ -11,7 +11,7 @@ backend_dir="${src_dir}/backend"
 cd ${script_dir}
 
 # Authenticate:
-az login --identity
+az login --identity --client-id ${MI_CLIENT_ID}
 
 # Ensure pip:
 python3 -m ensurepip --upgrade
