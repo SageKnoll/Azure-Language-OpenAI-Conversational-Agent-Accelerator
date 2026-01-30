@@ -1,21 +1,28 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-
+# Modified for IRIS Symphony OSHA by Sagevia
 """
-This script is a local script to interact with the HandoffOrchestration class within the Semantic Kernel framework.
-It initializes agents, sets up handoffs, and runs an orchestration task.
-Run by using the vscode configuration "Python: Run handoff_client.py as module".
+IRIS Symphony OSHA - Handoff Client
+===================================
+Local script to test HandoffOrchestration with OSHA agents.
+Run with: python -m handoff_client
 """
 
 import os
 import asyncio
 from semantic_kernel.agents import AzureAIAgent, OrchestrationHandoffs, HandoffOrchestration
 from semantic_kernel.agents.runtime import InProcessRuntime
-from agents.order_cancel_plugin import OrderCancellationPlugin
-from agents.order_refund_plugin import OrderRefundPlugin
-from agents.order_status_plugin import OrderStatusPlugin
 from semantic_kernel.contents import AuthorRole, ChatMessageContent
 from azure.identity.aio import DefaultAzureCredential
+
+# IRIS Symphony OSHA Plugins
+from agents.sciences_plugin import SciencesPlugin
+from agents.regulatory_guidance_plugin import RegulatoryGuidancePlugin
+from agents.recordability_plugin import RecordabilityPlugin
+from agents.industry_analytics_plugin import IndustryAnalyticsPlugin
+from agents.incident_management_plugin import IncidentManagementPlugin
+from agents.document_generation_plugin import DocumentGenerationPlugin
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -23,128 +30,187 @@ load_dotenv()
 PROJECT_ENDPOINT = os.environ.get("AGENTS_PROJECT_ENDPOINT")
 MODEL_NAME = os.environ.get("AOAI_DEPLOYMENT")
 
-# Comment out for local testing:
+# Agent IDs from AI Foundry
 AGENT_IDS = {
     "TRIAGE_AGENT_ID": os.environ.get("TRIAGE_AGENT_ID"),
-    "HEAD_SUPPORT_AGENT_ID": os.environ.get("HEAD_SUPPORT_AGENT_ID"),
-    "ORDER_STATUS_AGENT_ID": os.environ.get("ORDER_STATUS_AGENT_ID"),
-    "ORDER_CANCEL_AGENT_ID": os.environ.get("ORDER_CANCEL_AGENT_ID"),
-    "ORDER_REFUND_AGENT_ID": os.environ.get("ORDER_REFUND_AGENT_ID"),
+    "LUMI_AGENT_ID": os.environ.get("LUMI_AGENT_ID"),
+    "SCIENCES_AGENT_ID": os.environ.get("SCIENCES_AGENT_ID"),
+    "GOVERNANCE_AGENT_ID": os.environ.get("GOVERNANCE_AGENT_ID"),
+    "ANALYTICS_AGENT_ID": os.environ.get("ANALYTICS_AGENT_ID"),
+    "EXPERIENCE_AGENT_ID": os.environ.get("EXPERIENCE_AGENT_ID"),
 }
 
-# Define the confidence threshold for CLU intent recognition
-confidence_threshold = float(os.environ.get("CLU_CONFIDENCE_THRESHOLD", "0.5"))
+# Confidence threshold
+confidence_threshold = float(os.environ.get("CLU_CONFIDENCE_THRESHOLD", "0.7"))
 
 
 def human_response_function() -> ChatMessageContent:
-    """Observer function to print the messages from the agents."""
+    """Get input from user."""
     user_input = input("User: ")
     return ChatMessageContent(role=AuthorRole.USER, content=user_input)
 
 
 def agent_response_callback(message: ChatMessageContent) -> None:
-    if message.content == "":
-        return
-    print(f"{message.name}: {message.content}")
+    """Print agent responses."""
+    if message.content:
+        print(f"{message.name}: {message.content}")
 
 
-# sample reference for creating an Azure AI agent
 async def main():
+    """Test IRIS Symphony OSHA handoff orchestration."""
     async with DefaultAzureCredential(exclude_interactive_browser_credential=False) as creds:
         async with AzureAIAgent.create_client(credential=creds, endpoint=PROJECT_ENDPOINT) as client:
-            # Grab the agent definition from AI Foundry
-            triage_agent_definition = await client.agents.get_agent(AGENT_IDS["TRIAGE_AGENT_ID"])
+            
+            # Initialize TriageAgent
+            triage_def = await client.agents.get_agent(AGENT_IDS["TRIAGE_AGENT_ID"])
             triage_agent = AzureAIAgent(
                 client=client,
-                definition=triage_agent_definition,
-                description="A triage agent that routes inquiries to the proper custom agent"
+                definition=triage_def,
+                description="Routes OSHA questions to appropriate SAGE agents based on intent"
             )
 
-            order_status_agent_definition = await client.agents.get_agent(AGENT_IDS["ORDER_STATUS_AGENT_ID"])
-            order_status_agent = AzureAIAgent(
+            # Initialize Lumi (Primary Orchestrator)
+            lumi_def = await client.agents.get_agent(AGENT_IDS["LUMI_AGENT_ID"])
+            lumi_agent = AzureAIAgent(
                 client=client,
-                definition=order_status_agent_definition,
-                description="An agent that checks order status and it must use the OrderStatusPlugin to check the status of an order. If you need more information from the user, you must return a JSON response with 'need_more_info': 'True', otherwise you must return 'need_more_info': 'False'. You must return the response in the following valid JSON format: {'response': <OrderStatusResponse>, 'terminated': 'True', 'need_more_info': <'True' or 'False'>}",
-                plugins=[OrderStatusPlugin()],
+                definition=lumi_def,
+                description="Primary orchestrator that routes to IRI domain agents"
             )
 
-            order_cancel_agent_definition = await client.agents.get_agent(AGENT_IDS["ORDER_CANCEL_AGENT_ID"])
-            order_cancel_agent = AzureAIAgent(
+            # Initialize SciencesAgent - 📚 NIOSH, CDC, research
+            sciences_def = await client.agents.get_agent(AGENT_IDS["SCIENCES_AGENT_ID"])
+            sciences_agent = AzureAIAgent(
                 client=client,
-                definition=order_cancel_agent_definition,
-                description="An agent that checks on cancellations and it must use the OrderCancellationPlugin to handle order cancellation requests. If you need more information from the user, you must return a response with 'need_more_info': 'True', otherwise you must return 'need_more_info': 'False'. You must return the response in the following valid JSON format: {'response': <OrderCancellationResponse>, 'terminated': 'True', 'need_more_info': <'True' or 'False'>}",
-                plugins=[OrderCancellationPlugin()],
+                definition=sciences_def,
+                description="Provides research-based guidance from NIOSH, CDC. Use SciencesPlugin for exposure limits and best practices. Returns JSON: {'response': <guidance>, 'terminated': 'True', 'need_more_info': <bool>}",
+                plugins=[SciencesPlugin()],
             )
 
-            order_refund_agent_definition = await client.agents.get_agent(AGENT_IDS["ORDER_REFUND_AGENT_ID"])
-            order_refund_agent = AzureAIAgent(
+            # Initialize GovernanceAgent - ⚖️ eCFR, Recordability
+            governance_def = await client.agents.get_agent(AGENT_IDS["GOVERNANCE_AGENT_ID"])
+            governance_agent = AzureAIAgent(
                 client=client,
-                definition=order_refund_agent_definition,
-                description="An agent that checks on refunds and it must use the OrderRefundPlugin to handle order refund requests. If you need more information from the user, you must return a JSON response with 'need_more_info': 'True', otherwise you must return 'need_more_info': 'False'. You must return the response in the following valid JSON format: {'response': <OrderRefundResponse>, 'terminated': 'True', 'need_more_info': <'True' or 'False'>}",
-                plugins=[OrderRefundPlugin()],
+                definition=governance_def,
+                description="Provides OSHA regulatory guidance from 29 CFR 1904. Use RegulatoryGuidancePlugin for eCFR search and RecordabilityPlugin for Q0-Q4 logic. Returns JSON: {'response': <guidance>, 'terminated': 'True', 'need_more_info': <bool>}",
+                plugins=[RegulatoryGuidancePlugin(), RecordabilityPlugin()],
             )
 
-            print("Agents initialized successfully.")
-            print(f"Triage Agent ID: {triage_agent.id}")
-            print(f"Order Status Agent ID: {order_status_agent.id}")
-            print(f"Order Cancel Agent ID: {order_cancel_agent.id}")
-            print(f"Order Refund Agent ID: {order_refund_agent.id}")
+            # Initialize AnalyticsAgent - 📊 BLS, NAICS
+            analytics_def = await client.agents.get_agent(AGENT_IDS["ANALYTICS_AGENT_ID"])
+            analytics_agent = AzureAIAgent(
+                client=client,
+                definition=analytics_def,
+                description="Provides industry risk data from BLS injury rates and NAICS codes. Use IndustryAnalyticsPlugin. Returns JSON: {'response': <data>, 'terminated': 'True', 'need_more_info': <bool>}",
+                plugins=[IndustryAnalyticsPlugin()],
+            )
 
+            # Initialize ExperienceAgent - 🤝 Incidents, Documents (Zone 2)
+            experience_def = await client.agents.get_agent(AGENT_IDS["EXPERIENCE_AGENT_ID"])
+            experience_agent = AzureAIAgent(
+                client=client,
+                definition=experience_def,
+                description="Manages incident records and generates OSHA forms. Use IncidentManagementPlugin and DocumentGenerationPlugin. Zone 2 PII-protected. Returns JSON: {'response': <result>, 'terminated': 'True', 'need_more_info': <bool>}",
+                plugins=[IncidentManagementPlugin(), DocumentGenerationPlugin()],
+            )
+
+            print("\n" + "=" * 50)
+            print("IRIS Symphony OSHA Agents Initialized")
+            print("=" * 50)
+            print(f"  TriageAgent: {triage_agent.id}")
+            print(f"  Lumi: {lumi_agent.id}")
+            print(f"  📚 SciencesAgent: {sciences_agent.id}")
+            print(f"  ⚖️ GovernanceAgent: {governance_agent.id}")
+            print(f"  📊 AnalyticsAgent: {analytics_agent.id}")
+            print(f"  🤝 ExperienceAgent: {experience_agent.id}")
+            print("=" * 50)
+
+            # Define handoffs between agents
             handoffs = (
                 OrchestrationHandoffs()
-                .add_many(    # Use add_many to add multiple handoffs to the same source agent at once
+                # Triage routes to Lumi for all intents
+                .add(
                     source_agent=triage_agent.name,
+                    target_agent=lumi_agent.name,
+                    description="Transfer to Lumi when CLU extracts an intent. Lumi will route to the appropriate SAGE agent."
+                )
+                # Lumi routes to SAGE agents based on IRI domain
+                .add_many(
+                    source_agent=lumi_agent.name,
                     target_agents={
-                        order_refund_agent.name: "Transfer to this agent if the issue is refund related. If the triage agent responds with a JSON, ensure you look at the 'topIntent' field and transfer to the appropriate agent based on the intent.",
-                        order_status_agent.name: "Transfer to this agent if the issue is order status related. If the triage agent responds with a JSON, ensure you look at the 'topIntent' field and transfer to the appropriate agent based on the intent.",
-                        order_cancel_agent.name: "Transfer to this agent if the issue is order cancellation related. If the triage agent responds with a JSON, ensure you look at the 'topIntent' field and transfer to the appropriate agent based on the intent.",
-                    },
+                        sciences_agent.name: "Transfer for research questions about NIOSH recommendations, exposure limits, or best practices beyond OSHA minimums.",
+                        governance_agent.name: "Transfer for regulatory questions about OSHA recordkeeping, recordability determinations, first aid vs medical treatment, or CFR interpretations.",
+                        analytics_agent.name: "Transfer for industry risk questions about BLS injury rates, NAICS codes, or DART/TCIR calculations.",
+                        experience_agent.name: "Transfer for incident-specific operations like creating records, generating forms, or tracking days away."
+                    }
                 )
-                .add(    # Use add to add a single handoff
-                    source_agent=order_refund_agent.name,
-                    target_agent=triage_agent.name,
-                    description="Transfer to this agent if the issue is NOT refund related. Transfer if the issue is related to order status or cancellation. Transfer if the request is from the user",
+                # SAGE agents can route back to Lumi for cross-domain questions
+                .add(
+                    source_agent=sciences_agent.name,
+                    target_agent=lumi_agent.name,
+                    description="Transfer back to Lumi if the question requires regulatory or analytics expertise, not just research guidance."
                 )
                 .add(
-                    source_agent=order_status_agent.name,
-                    target_agent=triage_agent.name,
-                    description="Transfer to this agent if the issue is NOT order status related. Transfer if the issue is related to refund or cancellation. Transfer if the request is from the user",
+                    source_agent=governance_agent.name,
+                    target_agent=lumi_agent.name,
+                    description="Transfer back to Lumi if the question requires research or analytics expertise beyond regulatory interpretation."
                 )
                 .add(
-                    source_agent=order_cancel_agent.name,
-                    target_agent=triage_agent.name,
-                    description="Transfer to this agent if the issue is NOT order cancellation related. Transfer if the issue is related to refund or order status. Transfer if the request is from the user",
+                    source_agent=analytics_agent.name,
+                    target_agent=lumi_agent.name,
+                    description="Transfer back to Lumi if the question requires regulatory or research expertise beyond data analysis."
+                )
+                .add(
+                    source_agent=experience_agent.name,
+                    target_agent=lumi_agent.name,
+                    description="Transfer back to Lumi if the question requires regulatory, research, or analytics expertise beyond incident management."
                 )
             )
 
+            # Create handoff orchestration
             handoff_orchestration = HandoffOrchestration(
                 members=[
                     triage_agent,
-                    order_refund_agent,
-                    order_status_agent,
-                    order_cancel_agent,
+                    lumi_agent,
+                    sciences_agent,
+                    governance_agent,
+                    analytics_agent,
+                    experience_agent,
                 ],
                 handoffs=handoffs,
                 agent_response_callback=agent_response_callback,
                 human_response_function=human_response_function,
             )
 
+            # Test queries
+            test_queries = [
+                "Is getting 4 stitches on a cut recordable?",
+                "What does NIOSH recommend for silica exposure limits?",
+                "What are the injury rates for plumbing contractors?",
+                "When do I post the Form 300A?",
+            ]
+
             runtime = InProcessRuntime()
             runtime.start()
 
-            orchestration_result = await handoff_orchestration.invoke(
-                task="What's the return policy",
+            print(f"\nTest: {test_queries[0]}")
+            print("-" * 50)
+
+            result = await handoff_orchestration.invoke(
+                task=test_queries[0],
                 runtime=runtime,
             )
-            try:
-                value = await orchestration_result.get()
-                print(value)
 
+            try:
+                value = await result.get()
+                print(f"\n{'=' * 50}")
+                print(f"RESULT: {value}")
+                print("=" * 50)
             except Exception as e:
-                print(f"[ERROR]: Error occurred: {e}")
+                print(f"[ERROR]: {e}")
 
             await runtime.stop_when_idle()
 
+
 if __name__ == "__main__":
     asyncio.run(main())
-    print("Agent orchestration completed.")
+    print("\n✅ IRIS Symphony OSHA handoff test complete.")

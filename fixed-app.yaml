@@ -1,0 +1,36 @@
+properties:
+  configuration:
+    ingress:
+      targetPort: 80
+  template:
+    containers:
+      - name: iris-symphony
+        image: cade39b89e63acr.azurecr.io/ca-svo-convo-pocjvk7s5ecji:20260116054832033839
+        resources:
+          cpu: 1.0
+          memory: 2Gi
+        env:
+          - name: LANGUAGE_ENDPOINT
+            value: "https://aif-pocjvk7s5ecji.cognitiveservices.azure.com/"
+          - name: AOAI_ENDPOINT
+            value: "https://aif-pocjvk7s5ecji.openai.azure.com/"
+          - name: AOAI_DEPLOYMENT
+            value: "gpt-4o"
+          - name: SEARCH_ENDPOINT
+            value: "https://srch-pocjvk7s5ecji.search.windows.net"
+          - name: SEARCH_INDEX_NAME
+            value: "sagevia-osha-knowledge-idx"
+          - name: CLU_PROJECT_NAME
+            value: "sagevia-osha-clu"
+          - name: CLU_DEPLOYMENT_NAME
+            value: "production"
+          - name: AGENTS_PROJECT_ENDPOINT
+            value: "https://aif-pocjvk7s5ecji.services.ai.azure.com/api/projects/aif-pocjvk7s5ecji-agents"
+          - name: USE_MI_AUTH
+            value: "true"
+          - name: MI_CLIENT_ID
+            value: "7fa0b93a-ec70-4e48-acce-41e909b1055d"
+          - name: ROUTER_TYPE
+            value: "clu"
+          - name: STORAGE_ACCOUNT_CONNECTION_STRING
+            secretRef: storage-connection-string

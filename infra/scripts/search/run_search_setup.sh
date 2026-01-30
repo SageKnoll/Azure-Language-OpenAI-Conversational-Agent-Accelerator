@@ -1,8 +1,15 @@
 #!/bin/bash
+# ============================================================
+# IRIS Symphony OSHA - Search Index Setup
+# ============================================================
+# Uploads OSHA knowledge files to blob storage and creates
+# the Azure AI Search index with vector embeddings.
+# ============================================================
 
 set -e
 
-product_info_file="product_info.tar.gz"
+# Use OSHA knowledge files instead of product_info
+knowledge_file="osha_knowledge.tar.gz"
 cwd=$(pwd)
 script_dir=$(dirname $(realpath "$0"))
 cd ${script_dir}
@@ -11,18 +18,36 @@ cd ${script_dir}
 storage_account_name=$1
 blob_container_name=$2
 
-# Fetch data:
-cp ../../data/${product_info_file} .
-
-# Unzip data:
-if [ ! -d "product_info" ]; then
-    mkdir product_info
+# Fetch data - look for OSHA knowledge files
+if [ -f "../../data/${knowledge_file}" ]; then
+    echo "Found OSHA knowledge archive: ${knowledge_file}"
+    cp ../../data/${knowledge_file} .
+    
+    # Unzip data:
+    if [ ! -d "osha_knowledge" ]; then
+        mkdir osha_knowledge
+    fi
+    mv ${knowledge_file} osha_knowledge/
+    cd osha_knowledge && tar -xvzf ${knowledge_file} && cd ..
+    upload_source="osha_knowledge"
+    
+elif [ -d "../../data/osha_knowledge" ]; then
+    echo "Found OSHA knowledge directory"
+    cp -r ../../data/osha_knowledge .
+    upload_source="osha_knowledge"
+    
+else
+    echo "ERROR: No OSHA knowledge files found!"
+    echo "Expected either:"
+    echo "  - ../../data/osha_knowledge.tar.gz"
+    echo "  - ../../data/osha_knowledge/ directory"
+    echo ""
+    echo "Please add your OSHA knowledge .md files to one of these locations."
+    exit 1
 fi
-mv ${product_info_file} product_info/
-cd product_info && tar -xvzf ${product_info_file} && cd ..
 
 # Upload data to storage account blob container:
-echo "Uploading files to blob container..."
+echo "Uploading OSHA knowledge files to blob container..."
 
 # Retry logic for blob upload to handle role assignment propagation delays
 max_retries=3
@@ -33,10 +58,10 @@ while [ $retry_count -lt $max_retries ]; do
         --auth-mode login \
         --destination ${blob_container_name} \
         --account-name ${storage_account_name} \
-        --source "product_info" \
+        --source "${upload_source}" \
         --pattern "*.md" \
         --overwrite; then
-        echo "Successfully uploaded files to blob container"
+        echo "Successfully uploaded OSHA knowledge files to blob container"
         break
     else
         retry_count=$((retry_count + 1))
@@ -59,7 +84,8 @@ echo "Running index setup..."
 python3 index_setup.py
 
 # Cleanup:
-rm -rf product_info/
+rm -rf osha_knowledge/
 cd ${cwd}
 
-echo "Search setup complete"
+echo "OSHA Search setup complete"
+echo "Index name: ${SEARCH_INDEX_NAME}"

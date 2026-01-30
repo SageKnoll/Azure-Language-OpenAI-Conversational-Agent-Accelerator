@@ -8,7 +8,7 @@
             "properties": {
                 "utterance": {
                     "type": "string",
-                    "description": "The utterance to be analyzed, e.g. play In the air tonight from Phil Collins"
+                    "description": "The utterance to be analyzed, e.g. is a needlestick recordable"
                 }
             },
             "required": ["utterance"]

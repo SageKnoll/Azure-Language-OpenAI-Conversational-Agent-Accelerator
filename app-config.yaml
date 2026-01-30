@@ -1,0 +1,171 @@
+id: /subscriptions/443c2eca-50c0-422f-b3c5-866b6a3d7d93/resourceGroups/rg-iris-symphony-osha/providers/Microsoft.App/containerapps/ca-svo-convo-pocjvk7s5ecji
+identity:
+  type: UserAssigned
+  userAssignedIdentities:
+    ? /subscriptions/443c2eca-50c0-422f-b3c5-866b6a3d7d93/resourcegroups/rg-iris-symphony-osha/providers/Microsoft.ManagedIdentity/userAssignedIdentities/id-pocjvk7s5ecji
+    : clientId: 7fa0b93a-ec70-4e48-acce-41e909b1055d
+      principalId: 9b5321ef-178f-46a6-ac6a-801ac5879bfb
+location: West US 3
+name: ca-svo-convo-pocjvk7s5ecji
+properties:
+  configuration:
+    activeRevisionsMode: Single
+    dapr: null
+    identitySettings: []
+    ingress:
+      additionalPortMappings: null
+      allowInsecure: false
+      clientCertificateMode: null
+      corsPolicy: null
+      customDomains: null
+      exposedPort: 0
+      external: true
+      fqdn: ca-svo-convo-pocjvk7s5ecji.icymoss-4c5073dd.westus3.azurecontainerapps.io
+      ipSecurityRestrictions: null
+      stickySessions: null
+      targetPort: 7000
+      traffic:
+      - latestRevision: true
+        weight: 100
+      transport: Http
+    maxInactiveRevisions: 100
+    registries:
+    - identity: ''
+      passwordSecretRef: cade39b89e63acrazurecrio-cade39b89e63acr
+      server: cade39b89e63acr.azurecr.io
+      username: cade39b89e63acr
+    runtime: null
+    secrets:
+    - name: cade39b89e63acrazurecrio-cade39b89e63acr
+    - name: storage-connection-string
+    service: null
+  customDomainVerificationId: 0E75637962A1BCA01010B9CC843B1707C135D02A7CD212B3439CAC903DB08F8C
+  delegatedIdentities: []
+  environmentId: /subscriptions/443c2eca-50c0-422f-b3c5-866b6a3d7d93/resourceGroups/rg-iris-symphony-osha/providers/Microsoft.App/managedEnvironments/cae-iris-pocjvk7s5ecji
+  eventStreamEndpoint: https://westus3.azurecontainerapps.dev/subscriptions/443c2eca-50c0-422f-b3c5-866b6a3d7d93/resourceGroups/rg-iris-symphony-osha/containerApps/ca-svo-convo-pocjvk7s5ecji/eventstream
+  latestReadyRevisionName: ca-svo-convo-pocjvk7s5ecji--0000002
+  latestRevisionFqdn: ca-svo-convo-pocjvk7s5ecji--0000002.icymoss-4c5073dd.westus3.azurecontainerapps.io
+  latestRevisionName: ca-svo-convo-pocjvk7s5ecji--0000002
+  managedEnvironmentId: /subscriptions/443c2eca-50c0-422f-b3c5-866b6a3d7d93/resourceGroups/rg-iris-symphony-osha/providers/Microsoft.App/managedEnvironments/cae-iris-pocjvk7s5ecji
+  outboundIpAddresses:
+  - 4.249.103.118
+  provisioningState: Succeeded
+  runningStatus: Running
+  template:
+    containers:
+    - env:
+      - name: AGENTS_PROJECT_ENDPOINT
+        value: https://aif-pocjvk7s5ecji.services.ai.azure.com/api/projects/aif-pocjvk7s5ecji-agents
+      - name: DELETE_OLD_AGENTS
+        value: 'false'
+      - name: MAX_AGENT_RETRY
+        value: '5'
+      - name: USE_MI_AUTH
+        value: 'true'
+      - name: MI_CLIENT_ID
+        value: 7fa0b93a-ec70-4e48-acce-41e909b1055d
+      - name: AOAI_ENDPOINT
+        value: https://aif-pocjvk7s5ecji.openai.azure.com/
+      - name: AOAI_DEPLOYMENT
+        value: gpt-4o
+      - name: TRANSLATOR_RESOURCE_ID
+        value: /subscriptions/443c2eca-50c0-422f-b3c5-866b6a3d7d93/resourceGroups/rg-iris-symphony-osha/providers/Microsoft.CognitiveServices/accounts/aif-pocjvk7s5ecji
+      - name: TRANSLATOR_REGION
+        value: westus3
+      - name: SEARCH_ENDPOINT
+        value: https://srch-pocjvk7s5ecji.search.windows.net
+      - name: SEARCH_INDEX_NAME
+        value: sagevia-osha-knowledge-idx
+      - name: EMBEDDING_DEPLOYMENT_NAME
+        value: text-embedding-ada-002
+      - name: EMBEDDING_MODEL_NAME
+        value: text-embedding-ada-002
+      - name: EMBEDDING_MODEL_DIMENSIONS
+        value: '3072'
+      - name: STORAGE_ACCOUNT_NAME
+        value: stpocjvk7s5ecji
+      - name: STORAGE_ACCOUNT_CONNECTION_STRING
+        secretRef: storage-connection-string
+      - name: BLOB_CONTAINER_NAME
+        value: osha-knowledge-files
+      - name: LANGUAGE_ENDPOINT
+        value: https://aif-pocjvk7s5ecji.cognitiveservices.azure.com/
+      - name: CLU_PROJECT_NAME
+        value: sagevia-osha-clu
+      - name: CLU_MODEL_NAME
+        value: clu-m1
+      - name: CLU_DEPLOYMENT_NAME
+        value: production
+      - name: CLU_CONFIDENCE_THRESHOLD
+        value: '0.7'
+      - name: CQA_PROJECT_NAME
+        value: sagevia-osha-cqa
+      - name: CQA_DEPLOYMENT_NAME
+        value: production
+      - name: CQA_CONFIDENCE_THRESHOLD
+        value: '0.8'
+      - name: ORCHESTRATION_PROJECT_NAME
+        value: sagevia-osha-orchestration
+      - name: ORCHESTRATION_MODEL_NAME
+        value: orch-m1
+      - name: ORCHESTRATION_DEPLOYMENT_NAME
+        value: production
+      - name: ORCHESTRATION_CONFIDENCE_THRESHOLD
+        value: '0.7'
+      - name: PII_ENABLED
+        value: 'true'
+      - name: PII_CATEGORIES
+        value: person,organization,address,phonenumber
+      - name: PII_CONFIDENCE_THRESHOLD
+        value: '0.7'
+      - name: ROUTER_TYPE
+        value: ORCHESTRATION
+      - name: APP_MODE
+        value: SEMANTIC_KERNEL
+      - name: IRIS_ZONE1_ECFR_URL
+        value: ''
+      - name: IRIS_ZONE1_RECORDABILITY_URL
+        value: ''
+      - name: IRIS_ZONE1_ANALYTICS_URL
+        value: ''
+      - name: IRIS_ZONE2_INCIDENTS_URL
+        value: ''
+      - name: IRIS_ZONE2_DOCUMENTS_URL
+        value: ''
+      image: mcr.microsoft.com/azuredocs/containerapps-helloworld:latest
+      name: convo-agent
+      resources:
+        cpu: 0.5
+        ephemeralStorage: 2Gi
+        memory: 1Gi
+    - image: cade39b89e63acr.azurecr.io/ca-svo-convo-pocjvk7s5ecji:20260116054832033839
+      name: ca-svo-convo-pocjvk7s5ecji
+      resources:
+        cpu: 0.5
+        ephemeralStorage: 2Gi
+        memory: 1Gi
+    initContainers: null
+    revisionSuffix: ''
+    scale:
+      cooldownPeriod: 300
+      maxReplicas: 3
+      minReplicas: 0
+      pollingInterval: 30
+      rules:
+      - http:
+          metadata:
+            concurrentRequests: '10'
+        name: http-scaling
+    serviceBinds: null
+    terminationGracePeriodSeconds: null
+    volumes: null
+  workloadProfileName: null
+resourceGroup: rg-iris-symphony-osha
+systemData:
+  createdAt: '2026-01-16T04:19:03.7245435'
+  createdBy: Stephanie@sageknoll.co
+  createdByType: User
+  lastModifiedAt: '2026-01-16T05:59:27.5226161'
+  lastModifiedBy: Stephanie@sageknoll.co
+  lastModifiedByType: User
+type: Microsoft.App/containerApps

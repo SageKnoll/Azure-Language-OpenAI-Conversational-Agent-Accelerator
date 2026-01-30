@@ -7,8 +7,8 @@ param name string = 'st${suffix}'
 @description('Location for all resources.')
 param location string = resourceGroup().location
 
-@description('Blob container name.')
-param blob_container_name string = 'contoso-outdoors-manuals'
+@description('Blob container name for OSHA knowledge files.')
+param blob_container_name string = 'osha-knowledge-files'
 
 //----------- Storage Account Resource -----------//
 resource storage_account 'Microsoft.Storage/storageAccounts@2023-05-01' = {

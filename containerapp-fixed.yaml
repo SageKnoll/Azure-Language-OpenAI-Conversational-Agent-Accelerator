@@ -1,0 +1,103 @@
+properties:
+  template:
+    containers:
+    - env:
+      - name: AGENTS_PROJECT_ENDPOINT
+        value: https://aif-2ygsjtole3k4o.services.ai.azure.com/api/projects/aif-2ygsjtole3k4o-agents
+      - name: DELETE_OLD_AGENTS
+        value: 'false'
+      - name: MAX_AGENT_RETRY
+        value: '5'
+      - name: USE_MI_AUTH
+        value: 'true'
+      - name: MI_CLIENT_ID
+        value: d40daa90-0700-4c7c-b111-cf21b5ec7aaf
+      - name: AOAI_ENDPOINT
+        value: https://aif-2ygsjtole3k4o.openai.azure.com/
+      - name: AOAI_DEPLOYMENT
+        value: gpt-4o
+      - name: TRANSLATOR_RESOURCE_ID
+        value: /subscriptions/443c2eca-50c0-422f-b3c5-866b6a3d7d93/resourceGroups/rg-iris-symphony-osha5/providers/Microsoft.CognitiveServices/accounts/aif-2ygsjtole3k4o
+      - name: TRANSLATOR_REGION
+        value: westus3
+      - name: SEARCH_ENDPOINT
+        value: https://srch-2ygsjtole3k4o.search.windows.net
+      - name: SEARCH_INDEX_NAME
+        value: sagevia-osha-knowledge-idx
+      - name: EMBEDDING_DEPLOYMENT_NAME
+        value: text-embedding-3-large
+      - name: EMBEDDING_MODEL_NAME
+        value: text-embedding-3-large
+      - name: EMBEDDING_MODEL_DIMENSIONS
+        value: '3072'
+      - name: STORAGE_ACCOUNT_NAME
+        value: st2ygsjtole3k4o
+      - name: STORAGE_ACCOUNT_CONNECTION_STRING
+        secretRef: storage-connection-string
+      - name: BLOB_CONTAINER_NAME
+        value: osha-knowledge-files
+      - name: LANGUAGE_ENDPOINT
+        value: https://aif-2ygsjtole3k4o.cognitiveservices.azure.com/
+      - name: CLU_PROJECT_NAME
+        value: sagevia-osha-clu
+      - name: CLU_MODEL_NAME
+        value: clu-m1
+      - name: CLU_DEPLOYMENT_NAME
+        value: production
+      - name: CLU_CONFIDENCE_THRESHOLD
+        value: '0.7'
+      - name: CQA_PROJECT_NAME
+        value: sagevia-osha-cqa
+      - name: CQA_DEPLOYMENT_NAME
+        value: production
+      - name: CQA_CONFIDENCE_THRESHOLD
+        value: '0.8'
+      - name: ORCHESTRATION_PROJECT_NAME
+        value: sagevia-osha-orchestration
+      - name: ORCHESTRATION_MODEL_NAME
+        value: orch-m1
+      - name: ORCHESTRATION_DEPLOYMENT_NAME
+        value: production
+      - name: ORCHESTRATION_CONFIDENCE_THRESHOLD
+        value: '0.7'
+      - name: PII_ENABLED
+        value: 'true'
+      - name: PII_CATEGORIES
+        value: person,organization,address,phonenumber
+      - name: PII_CONFIDENCE_THRESHOLD
+        value: '0.7'
+      - name: ROUTER_TYPE
+        value: ORCHESTRATION
+      - name: APP_MODE
+        value: SEMANTIC_KERNEL
+      - name: IRIS_ZONE1_ECFR_URL
+        value: ''
+      - name: IRIS_ZONE1_RECORDABILITY_URL
+        value: ''
+      - name: IRIS_ZONE1_ANALYTICS_URL
+        value: ''
+      - name: TRIAGE_AGENT_ID
+        value: asst_Xeumpw49JJ2QDxmAdJ36NMhL
+      - name: LUMI_AGENT_ID
+        value: asst_WqND6bfEODDQMe7DspwqQXxK
+      - name: SCIENCES_AGENT_ID
+        value: asst_Su02DkXtTzyYt5N0gtKvC0YC
+      - name: GOVERNANCE_AGENT_ID
+        value: asst_T3pi5nSo4UBT0Vz46pE6jqDy
+      - name: ANALYTICS_AGENT_ID
+        value: asst_S3NmWxc5N0dQRuFSRtQlRzc6
+      - name: EXPERIENCE_AGENT_ID
+        value: asst_682AlT7OQyjvamiVwG0uR4yG
+      - name: TRANSLATION_AGENT_ID
+        value: asst_skeQ8bviyzLJ8RoiatUOOctc
+      - name: HEAD_SUPPORT_AGENT_ID
+        value: asst_WqND6bfEODDQMe7DspwqQXxK
+      - name: IRIS_ZONE2_INCIDENTS_URL
+        value: ''
+      - name: IRIS_ZONE2_DOCUMENTS_URL
+        value: ''
+      image: ca08c54e3510acr.azurecr.io/ca-svo-convo-2ygsjtole3k4o:20260116101121474714
+      name: convo-agent
+      resources:
+        cpu: 1.0
+        memory: 2Gi

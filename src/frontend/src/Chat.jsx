@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+// Modified for IRIS Symphony OSHA by Sagevia
 import { useState, useEffect, useRef } from 'react';
 import Markdown from 'react-markdown'
 
@@ -9,7 +10,7 @@ const Chat = () => {
     const [needMoreInfo, setNeedMoreInfo] = useState(false);
 
     const messageEndRef = useRef(null);
-    const welcomeMessage = 'Ask a question...';
+    const welcomeMessage = 'Ask about OSHA recordkeeping...';
 
     const scrollToBottom = () => {
         messageEndRef.current?.scrollIntoView({ behavior: 'smooth' })

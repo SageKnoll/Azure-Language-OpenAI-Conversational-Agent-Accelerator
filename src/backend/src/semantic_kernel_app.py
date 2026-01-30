@@ -10,7 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel
 from semantic_kernel_orchestrator import SemanticKernelOrchestrator
-from azure.identity.aio import DefaultAzureCredential
+from azure.identity.aio import DefaultAzureCredential, ManagedIdentityCredential
 from semantic_kernel.agents import AzureAIAgent
 from utils import get_azure_credential
 from aoai_client import AOAIClient, get_prompt
@@ -38,33 +38,26 @@ class ChatRequest(BaseModel):
 # Environment variables
 PROJECT_ENDPOINT = os.environ.get("AGENTS_PROJECT_ENDPOINT")
 MODEL_NAME = os.environ.get("AOAI_DEPLOYMENT")
-CONFIG_DIR = os.environ.get("CONFIG_DIR", ".")
-config_file = os.path.join(CONFIG_DIR, "config.json")
+# Read agent IDs from environment variables
+AGENT_IDS = {
+    "TRIAGE_AGENT_ID": os.environ.get("TRIAGE_AGENT_ID"),
+    "GOVERNANCE_AGENT_ID": os.environ.get("GOVERNANCE_AGENT_ID"),
+    "ANALYTICS_AGENT_ID": os.environ.get("ANALYTICS_AGENT_ID"),
+    "EXPERIENCE_AGENT_ID": os.environ.get("EXPERIENCE_AGENT_ID"),
+    "SCIENCES_AGENT_ID": os.environ.get("SCIENCES_AGENT_ID"),
+    "LUMI_AGENT_ID": os.environ.get("LUMI_AGENT_ID"),
+    "TRANSLATION_AGENT_ID": os.environ.get("TRANSLATION_AGENT_ID"),
+    "HEAD_SUPPORT_AGENT_ID": os.environ.get("HEAD_SUPPORT_AGENT_ID"),
+}
 
-# Read config.json file from the config directory
-if os.path.exists(config_file):
-    with open(config_file, "r") as f:
-        AGENT_IDS = json.load(f)
-else:
-    AGENT_IDS = {}
-
-# Comment out for local testing:
-# AGENT_IDS = {
-#     "TRIAGE_AGENT_ID": os.environ.get("TRIAGE_AGENT_ID"),
-#     "HEAD_SUPPORT_AGENT_ID": os.environ.get("HEAD_SUPPORT_AGENT_ID"),
-#     "ORDER_STATUS_AGENT_ID": os.environ.get("ORDER_STATUS_AGENT_ID"),
-#     "ORDER_CANCEL_AGENT_ID": os.environ.get("ORDER_CANCEL_AGENT_ID"),
-#     "ORDER_REFUND_AGENT_ID": os.environ.get("ORDER_REFUND_AGENT_ID"),
-#     "TRANSLATION_AGENT_ID": os.environ.get("TRANSLATION_AGENT_ID"),
-# }
 
 # Check if all required agent IDs are present
 required_agents = [
     "TRIAGE_AGENT_ID",
-    "HEAD_SUPPORT_AGENT_ID",
-    "ORDER_STATUS_AGENT_ID",
-    "ORDER_CANCEL_AGENT_ID",
-    "ORDER_REFUND_AGENT_ID"
+    "GOVERNANCE_AGENT_ID",
+    "ANALYTICS_AGENT_ID",
+    "EXPERIENCE_AGENT_ID",
+    "SCIENCES_AGENT_ID"
 ]
 
 missing_agents = [agent for agent in required_agents if not AGENT_IDS.get(agent)]
@@ -199,7 +192,14 @@ async def lifespan(app: FastAPI):
         print(f"Using PROJECT_ENDPOINT: {PROJECT_ENDPOINT}")
         print(f"Using MODEL_NAME: {MODEL_NAME}")
 
-        async with DefaultAzureCredential(exclude_interactive_browser_credential=False) as creds:
+        # Use Managed Identity if configured
+        mi_client_id = os.environ.get("MI_CLIENT_ID")
+        use_mi = os.environ.get("USE_MI_AUTH", "false").lower() == "true"
+        if use_mi and mi_client_id:
+            creds = ManagedIdentityCredential(client_id=mi_client_id)
+        else:
+            creds = DefaultAzureCredential(exclude_interactive_browser_credential=False)
+        async with creds:
             async with AzureAIAgent.create_client(credential=creds, endpoint=PROJECT_ENDPOINT) as client:
                 orchestrator = SemanticKernelOrchestrator(
                     client,

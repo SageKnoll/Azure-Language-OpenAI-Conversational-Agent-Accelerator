@@ -1,5 +1,20 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+# Modified for IRIS Symphony OSHA by Sagevia
+"""
+IRIS Symphony OSHA - Semantic Kernel Orchestrator
+==================================================
+Multi-agent orchestration using Azure AI Foundry agents with
+Semantic Kernel GroupChat for OSHA recordkeeping assistance.
+
+Agent Architecture:
+  TranslationAgent → TriageAgent → Lumi → SAGE Agents
+                                           ├─ SciencesAgent (📚)
+                                           ├─ GovernanceAgent (⚖️)
+                                           ├─ AnalyticsAgent (📊)
+                                           └─ ExperienceAgent (🤝)
+"""
+
 import os
 import json
 import asyncio
@@ -7,15 +22,20 @@ from typing import Callable
 from semantic_kernel.agents import AzureAIAgent, GroupChatOrchestration, GroupChatManager, BooleanResult, StringResult, MessageResult
 from semantic_kernel.contents import ChatMessageContent, ChatHistory, AuthorRole
 from semantic_kernel.agents.runtime import InProcessRuntime
-from agents.order_status_plugin import OrderStatusPlugin
-from agents.order_refund_plugin import OrderRefundPlugin
-from agents.order_cancel_plugin import OrderCancellationPlugin
 from azure.ai.projects import AIProjectClient
 from pydantic import BaseModel
 
-# Define the confidence threshold for CLU intent recognition
-confidence_threshold = float(os.environ.get("CLU_CONFIDENCE_THRESHOLD", "0.5"))
-cqa_confidence = float(os.environ.get("CQA_CONFIDENCE", "0.5"))
+# IRIS Symphony OSHA Plugins (IRI Domain Agents)
+from agents.sciences_plugin import SciencesPlugin
+from agents.regulatory_guidance_plugin import RegulatoryGuidancePlugin
+from agents.recordability_plugin import RecordabilityPlugin
+from agents.industry_analytics_plugin import IndustryAnalyticsPlugin
+from agents.incident_management_plugin import IncidentManagementPlugin
+from agents.document_generation_plugin import DocumentGenerationPlugin
+
+# Define confidence thresholds
+confidence_threshold = float(os.environ.get("CLU_CONFIDENCE_THRESHOLD", "0.7"))
+cqa_confidence = float(os.environ.get("CQA_CONFIDENCE", "0.8"))
 
 
 class ChatMessage(BaseModel):
@@ -23,8 +43,12 @@ class ChatMessage(BaseModel):
     content: str
 
 
-# Custom functions to route messages from specific roles / agents
+# =============================================================================
+# ROUTING FUNCTIONS - Handle message flow between agents
+# =============================================================================
+
 def route_user_message(participant_descriptions: dict) -> StringResult:
+    """Route initial user message to TranslationAgent."""
     try:
         return StringResult(
             result=next((agent for agent in participant_descriptions.keys() if agent == "TranslationAgent"), None),
@@ -38,6 +62,7 @@ def route_user_message(participant_descriptions: dict) -> StringResult:
 
 
 def route_translation_message(last_message: ChatMessageContent, participant_descriptions: dict) -> StringResult:
+    """Route translated message to TriageAgent."""
     try:
         parsed = json.loads(last_message.content)
         response = parsed['response']
@@ -45,7 +70,7 @@ def route_translation_message(last_message: ChatMessageContent, participant_desc
 
         return StringResult(
             result=next((agent for agent in participant_descriptions.keys() if agent == "TriageAgent"), None),
-            reason="Routing to TriageAgent for message translation."
+            reason="Routing to TriageAgent for intent classification."
         )
     except Exception as e:
         return StringResult(
@@ -55,32 +80,49 @@ def route_translation_message(last_message: ChatMessageContent, participant_desc
 
 
 def route_triage_message(last_message: ChatMessageContent, participant_descriptions: dict) -> StringResult:
+    """Route triage result to appropriate handler (CQA direct or Lumi for CLU)."""
     try:
         parsed = json.loads(last_message.content)
-        # Handle CQA results
+        
+        # Handle CQA results (FAQ match)
         if parsed.get("type") == "cqa_result":
             print("[SYSTEM]: CQA result received, checking confidence...")
             confidence = parsed["response"]["answers"][0]["confidenceScore"]
 
             if confidence >= cqa_confidence:
+                print(f"[TriageAgent]: CQA confidence {confidence} >= {cqa_confidence}, returning FAQ answer")
                 return StringResult(
                     result=next((agent for agent in participant_descriptions.keys() if agent == "TranslationAgent"), None),
-                    reason="Routing to TranslationAgent for final translation."
+                    reason="Routing to TranslationAgent for final translation of CQA answer."
                 )
             else:
-                raise ValueError(f"[TriageAgent] CQA result returned low confidence score: {confidence}. Expected at least {cqa_confidence}.")
+                print(f"[TriageAgent]: CQA confidence {confidence} < {cqa_confidence}, falling back to Lumi")
+                return StringResult(
+                    result=next((agent for agent in participant_descriptions.keys() if agent == "Lumi"), None),
+                    reason="Low CQA confidence, routing to Lumi for deeper analysis."
+                )
 
-        # Handle CLU results
+        # Handle CLU results (intent extraction)
         if parsed.get("type") == "clu_result":
             print("[SYSTEM]: CLU result received, checking intent and entities...")
             intent = parsed["response"]["result"]["conversations"][0]["intents"][0]["name"]
-            print("[TriageAgent]: detected intent ", intent, ", routing to HeadSupportAgent for custom agent selection...")
-            return StringResult(
-                result=next((agent for agent in participant_descriptions.keys() if agent == "HeadSupportAgent"), None),
-                reason="Routing to HeadSupportAgent for custom agent selection."
-            )
+            confidence = parsed["response"]["result"]["conversations"][0]["intents"][0]["confidenceScore"]
+            
+            print(f"[TriageAgent]: Detected intent '{intent}' with confidence {confidence}")
+            
+            if confidence >= confidence_threshold:
+                print("[TriageAgent]: Routing to Lumi for SAGE agent selection...")
+                return StringResult(
+                    result=next((agent for agent in participant_descriptions.keys() if agent == "Lumi"), None),
+                    reason="Routing to Lumi for IRI domain agent selection."
+                )
+            else:
+                print(f"[TriageAgent]: Low CLU confidence {confidence}, routing to Lumi for clarification")
+                return StringResult(
+                    result=next((agent for agent in participant_descriptions.keys() if agent == "Lumi"), None),
+                    reason="Low CLU confidence, Lumi will request clarification."
+                )
 
-    # Handle errors in triage agent response
     except Exception as e:
         print(f"[SYSTEM]: Error processing TriageAgent message: {e}")
         return StringResult(
@@ -89,138 +131,159 @@ def route_triage_message(last_message: ChatMessageContent, participant_descripti
         )
 
 
-def route_head_support_message(last_message: ChatMessageContent, participant_descriptions: dict) -> StringResult:
+def route_lumi_message(last_message: ChatMessageContent, participant_descriptions: dict) -> StringResult:
+    """Route Lumi's decision to the appropriate SAGE agent."""
     try:
-        # Grab the target agent from the parsed content
         parsed = json.loads(last_message.content)
-        route = parsed.get("target_agent")
-
-        print("[HeadSupportAgent] Routing to target custom agent:", route)
+        target_agent = parsed.get("target_agent")
+        iri_domains = parsed.get("iri_domains", [])
+        
+        print(f"[Lumi] Routing to {target_agent} (IRI domains: {iri_domains})")
+        
+        # Validate target agent exists
+        valid_agents = ["SciencesAgent", "GovernanceAgent", "AnalyticsAgent", "ExperienceAgent"]
+        if target_agent not in valid_agents:
+            print(f"[SYSTEM]: Unknown target agent '{target_agent}', defaulting to GovernanceAgent")
+            target_agent = "GovernanceAgent"
+        
         return StringResult(
-            result=next((agent for agent in participant_descriptions.keys() if agent == route), None),
-            reason=f"Routing to target custom agent: {route}."
+            result=next((agent for agent in participant_descriptions.keys() if agent == target_agent), None),
+            reason=f"Routing to {target_agent} for {', '.join(iri_domains)} domain expertise."
         )
     except Exception as e:
-        print(f"[SYSTEM]: Error processing HeadSupportAgent message: {e}")
+        print(f"[SYSTEM]: Error processing Lumi message: {e}")
         return StringResult(
             result=None,
-            reason="Error processing HeadSupportAgent message."
+            reason="Error processing Lumi message."
         )
 
 
-def route_custom_agent_message(last_message: ChatMessageContent, participant_descriptions: dict) -> StringResult:
+def route_sage_agent_message(last_message: ChatMessageContent, participant_descriptions: dict) -> StringResult:
+    """Route SAGE agent response back to TranslationAgent for final output."""
     try:
-        response = json.loads(last_message.content)["response"]
-        print(f"[{last_message.name}]: Response content: {response}")
-        print(f"[TranslationAgent]: Translating {response}")
+        parsed = json.loads(last_message.content)
+        response = parsed.get("response", "")
+        need_more_info = parsed.get("need_more_info", "False")
+        
+        print(f"[{last_message.name}]: Response received, need_more_info={need_more_info}")
+        print(f"[TranslationAgent]: Translating response back to user language")
+        
         return StringResult(
             result=next((agent for agent in participant_descriptions.keys() if agent == "TranslationAgent"), None),
-            reason="Handle final message translation back to original language."
+            reason="Routing to TranslationAgent for final translation."
         )
     except Exception as e:
-        print(f"[SYSTEM]: Error processing custom agent message: {e}")
+        print(f"[SYSTEM]: Error processing SAGE agent message: {e}")
         return StringResult(
             result=None,
-            reason="Error processing custom agent message."
+            reason="Error processing SAGE agent message."
         )
 
+
+# =============================================================================
+# CUSTOM GROUP CHAT MANAGER - Orchestration logic
+# =============================================================================
 
 class CustomGroupChatManager(GroupChatManager):
     """
-    Custom group chat manager for Semantic Kernel Group Chat Orchestration.
-    You must override the methods to implement custom logic for agent selection, termination, and message filtering.
+    Custom group chat manager for IRIS Symphony OSHA.
+    Implements IRI-aware routing between SAGE agents.
     """
-    # Filtering results in the group chat
+    
     async def filter_results(self, chat_history: ChatHistory) -> MessageResult:
+        """Filter and return the final response."""
         if not chat_history:
             return MessageResult(
                 result=ChatMessageContent(role="assistant", content="No messages in chat history."),
                 reason="Chat history is empty."
             )
 
-        # Get the last message from the chat history
         last_message = chat_history[-1]
-
         return MessageResult(
             result=ChatMessageContent(role="assistant", content=last_message.content),
             reason="Returning the last agent's response."
         )
 
-    # Custom logic to decide if user input is needed
     async def should_request_user_input(self, chat_history: ChatHistory) -> BooleanResult:
+        """Determine if user input is needed (check need_more_info flag)."""
+        if chat_history:
+            last_message = chat_history[-1]
+            try:
+                parsed = json.loads(last_message.content)
+                if parsed.get("need_more_info") == "True":
+                    return BooleanResult(result=True, reason="Agent needs more information from user.")
+            except:
+                pass
         return BooleanResult(result=False, reason="No user input required.")
 
-    # Function to create custom agent selection methods
     async def select_next_agent(self, chat_history: ChatHistory, participant_descriptions: dict) -> StringResult:
         """
-        Multi-agent orchestration method for Semantic Kernel Agent Group Chat.
-        This method decides how to select the next agent based on the current message and agent with custom logic based on agent responses.
+        Multi-agent orchestration for IRIS Symphony OSHA.
+        Routes messages through: User → Translation → Triage → Lumi → SAGE Agents → Translation → User
         """
         last_message = chat_history[-1] if chat_history else None
         format_agent_response(last_message)
 
-        # Process user messages
+        # Route user messages to TranslationAgent
         if not last_message or last_message.role == AuthorRole.USER:
-            print("[SYSTEM]: Last message is from the USER, routing to TranslationAgent for initial translation...")
+            print("[SYSTEM]: User message received, routing to TranslationAgent...")
             return route_user_message(participant_descriptions)
 
+        # Route TranslationAgent → TriageAgent (initial) or terminate (final)
         elif last_message.name == "TranslationAgent":
-            print("[SYSTEM]: Last message is from TranslationAgent, routing to TriageAgent for message translation...")
+            # Check if this is final translation (after SAGE agent response)
+            if len(chat_history) > 3:
+                print("[SYSTEM]: Final translation complete, terminating.")
+                return StringResult(result=None, reason="Final translation complete.")
+            print("[SYSTEM]: Initial translation complete, routing to TriageAgent...")
             return route_translation_message(last_message, participant_descriptions)
 
-        # Process triage agent messages
+        # Route TriageAgent → Lumi or TranslationAgent (CQA direct)
         elif last_message.name == "TriageAgent":
-            print("[SYSTEM]: Last message is from TriageAgent, checking if agent returned a CQA or CLU result...")
+            print("[SYSTEM]: Triage complete, routing based on result type...")
             return route_triage_message(last_message, participant_descriptions)
 
-        # Process head support agent messages
-        elif last_message.name == "HeadSupportAgent":
-            print("[SYSTEM]: Last message is from HeadSupportAgent, choosing custom agent...")
-            return route_head_support_message(last_message, participant_descriptions)
+        # Route Lumi → SAGE Agent
+        elif last_message.name == "Lumi":
+            print("[SYSTEM]: Lumi routing to SAGE agent...")
+            return route_lumi_message(last_message, participant_descriptions)
 
-        # Process custom agent messages - customize as needed
-        elif last_message.name in ["OrderStatusAgent", "OrderRefundAgent", "OrderCancelAgent"]:
-            print(f"[SYSTEM]: Last message is from {last_message.name}, translate back to original language if needed.")
-            return route_custom_agent_message(last_message, participant_descriptions)
+        # Route SAGE Agents → TranslationAgent
+        elif last_message.name in ["SciencesAgent", "GovernanceAgent", "AnalyticsAgent", "ExperienceAgent"]:
+            print(f"[SYSTEM]: {last_message.name} response received, routing to TranslationAgent...")
+            return route_sage_agent_message(last_message, participant_descriptions)
 
-        # Default case
-        print("[SYSTEM]: No valid routing logic found, returning None.")
-        return StringResult(
-            result=None,
-            reason="No valid routing logic found."
-        )
+        # Default: no routing
+        print("[SYSTEM]: No valid routing logic found, terminating.")
+        return StringResult(result=None, reason="No valid routing logic found.")
 
-    # Function to check for termination
-    async def should_terminate(self, chat_history):
-        """
-        Custom termination logic for the agent group chat.
-        Ends the chat if the last message indicates termination or requires more information.
-        """
-        last_message = chat_history[-1] if chat_history else None
-        # If history is empty, return False
-        if not last_message:
-            return BooleanResult(
-                result=False,
-                reason="No messages in chat history."
-            )
+    async def should_terminate(self, chat_history: ChatHistory) -> BooleanResult:
+        """Determine if chat should terminate."""
+        if not chat_history:
+            return BooleanResult(result=False, reason="No messages in chat history.")
 
-        # Check if message is from the translation agent and is not the initial translation
+        last_message = chat_history[-1]
+
+        # Terminate after final translation
         if last_message.name == "TranslationAgent" and len(chat_history) > 3:
-            print(last_message.name)
-            print(last_message.content)
-            return BooleanResult(
-                result=True,
-                reason="Chat terminated due to TranslationAgent response."
-            )
+            print(f"[SYSTEM]: Final translation from {last_message.name}, terminating.")
+            return BooleanResult(result=True, reason="Chat terminated after final translation.")
 
-        return BooleanResult(
-            result=False,
-            reason="No termination flags found in last message."
-        )
+        return BooleanResult(result=False, reason="Chat continues.")
 
 
-# Custom multi-agent semantic kernel orchestrator
+# =============================================================================
+# SEMANTIC KERNEL ORCHESTRATOR - Main orchestration class
+# =============================================================================
+
 class SemanticKernelOrchestrator:
+    """
+    IRIS Symphony OSHA Semantic Kernel Orchestrator.
+    
+    Manages multi-agent conversations using Azure AI Foundry agents
+    with IRI-aware routing through SAGE domain agents.
+    """
+    
     def __init__(
         self,
         client: AIProjectClient,
@@ -230,10 +293,7 @@ class SemanticKernelOrchestrator:
         fallback_function: Callable[[str, str, str], dict],
         max_retries: int = 3
     ):
-        """
-        Initialize the semantic kernel orchestrator with the AI Project client, model name, project endpoint,
-        agent IDs, fallback function, and maximum retries.
-        """
+        """Initialize the orchestrator."""
         self.client = client
         self.model_name = model_name
         self.project_endpoint = project_endpoint
@@ -241,101 +301,134 @@ class SemanticKernelOrchestrator:
         self.fallback_function = fallback_function
         self.max_retries = max_retries
 
-        # Initialize plugins for custom agents
-        self.order_status_plugin = OrderStatusPlugin()
-        self.order_refund_plugin = OrderRefundPlugin()
-        self.order_cancel_plugin = OrderCancellationPlugin()
+        # Initialize IRIS Symphony plugins (IRI Domain Agents)
+        self.sciences_plugin = SciencesPlugin()
+        self.regulatory_guidance_plugin = RegulatoryGuidancePlugin()
+        self.recordability_plugin = RecordabilityPlugin()
+        self.industry_analytics_plugin = IndustryAnalyticsPlugin()
+        self.incident_management_plugin = IncidentManagementPlugin()
+        self.document_generation_plugin = DocumentGenerationPlugin()
 
     async def initialize_agents(self) -> list:
         """
-        Initialize the Semantic Kernel Azure AI agents for the semantic kernel orchestrator.
-        This method retrieves the agent definitions from AI Foundry and creates AzureAIAgent instances for each foundry agent.
+        Initialize IRIS Symphony OSHA agents from Azure AI Foundry.
+        
+        Returns list of agents in orchestration order:
+        [TranslationAgent, TriageAgent, Lumi, SciencesAgent, GovernanceAgent, AnalyticsAgent, ExperienceAgent]
         """
-        # Grab the agent definition from AI Foundry
-        triage_agent_definition = await self.client.agents.get_agent(self.agent_ids["TRIAGE_AGENT_ID"])
-        triage_agent = AzureAIAgent(
-            client=self.client,
-            definition=triage_agent_definition,
-            description="A triage agent that routes inquiries to the proper custom agent."
-        )
-
-        order_status_agent_definition = await self.client.agents.get_agent(self.agent_ids["ORDER_STATUS_AGENT_ID"])
-        order_status_agent = AzureAIAgent(
-            client=self.client,
-            definition=order_status_agent_definition,
-            description="An agent that checks order status",
-            plugins=[OrderStatusPlugin()],
-        )
-
-        order_cancel_agent_definition = await self.client.agents.get_agent(self.agent_ids["ORDER_CANCEL_AGENT_ID"])
-        order_cancel_agent = AzureAIAgent(
-            client=self.client,
-            definition=order_cancel_agent_definition,
-            description="An agent that checks on cancellations",
-            plugins=[OrderCancellationPlugin()],
-        )
-
-        order_refund_agent_definition = await self.client.agents.get_agent(self.agent_ids["ORDER_REFUND_AGENT_ID"])
-        order_refund_agent = AzureAIAgent(
-            client=self.client,
-            definition=order_refund_agent_definition,
-            description="An agent that checks on refunds",
-            plugins=[OrderRefundPlugin()],
-        )
-
-        head_support_agent_definition = await self.client.agents.get_agent(self.agent_ids["HEAD_SUPPORT_AGENT_ID"])
-        head_support_agent = AzureAIAgent(
-            client=self.client,
-            definition=head_support_agent_definition,
-            description="A head support agent that routes inquiries to the proper custom agent.",
-        )
-
+        print("=" * 60)
+        print("IRIS Symphony OSHA - Initializing Agents")
+        print("=" * 60)
+        
+        # TranslationAgent - Multi-language support
         translation_agent_definition = await self.client.agents.get_agent(self.agent_ids["TRANSLATION_AGENT_ID"])
         translation_agent = AzureAIAgent(
             client=self.client,
             definition=translation_agent_definition,
-            description="A translation agent that translates to English",
+            description="Translates messages to/from English for multi-language support.",
         )
-        # Set the translation agent for the orchestrator to handle fallback translations
         self.translation_agent = translation_agent
 
-        print("Agents initialized successfully.")
-        print(f"Triage Agent ID: {triage_agent.id}")
-        print(f"Head Support Agent ID: {head_support_agent.id}")
-        print(f"Order Status Agent ID: {order_status_agent.id}")
-        print(f"Order Cancel Agent ID: {order_cancel_agent.id}")
-        print(f"Order Refund Agent ID: {order_refund_agent.id}")
-        print(f"Translation Agent ID: {translation_agent.id}")
+        # TriageAgent - CLU/CQA routing
+        triage_agent_definition = await self.client.agents.get_agent(self.agent_ids["TRIAGE_AGENT_ID"])
+        triage_agent = AzureAIAgent(
+            client=self.client,
+            definition=triage_agent_definition,
+            description="Routes inquiries to CLU (intent) or CQA (FAQ) for classification.",
+        )
 
-        return [translation_agent, triage_agent, head_support_agent, order_status_agent, order_cancel_agent, order_refund_agent]
+        # Lumi - Primary orchestrator (IRI-aware routing)
+        lumi_agent_definition = await self.client.agents.get_agent(self.agent_ids["LUMI_AGENT_ID"])
+        lumi_agent = AzureAIAgent(
+            client=self.client,
+            definition=lumi_agent_definition,
+            description="Primary orchestrator that routes to SAGE domain agents based on IRI methodology.",
+        )
+
+        # SciencesAgent - 📚 NIOSH, CDC, research, best practices
+        sciences_agent_definition = await self.client.agents.get_agent(self.agent_ids["SCIENCES_AGENT_ID"])
+        sciences_agent = AzureAIAgent(
+            client=self.client,
+            definition=sciences_agent_definition,
+            description="Provides research-based guidance from NIOSH, CDC, and occupational health literature.",
+            plugins=[self.sciences_plugin],
+        )
+
+        # GovernanceAgent - ⚖️ eCFR, Recordability Engine, regulations
+        governance_agent_definition = await self.client.agents.get_agent(self.agent_ids["GOVERNANCE_AGENT_ID"])
+        governance_agent = AzureAIAgent(
+            client=self.client,
+            definition=governance_agent_definition,
+            description="Provides regulatory guidance from OSHA regulations (29 CFR 1904).",
+            plugins=[self.regulatory_guidance_plugin, self.recordability_plugin],
+        )
+
+        # AnalyticsAgent - 📊 BLS, NAICS, industry risk data
+        analytics_agent_definition = await self.client.agents.get_agent(self.agent_ids["ANALYTICS_AGENT_ID"])
+        analytics_agent = AzureAIAgent(
+            client=self.client,
+            definition=analytics_agent_definition,
+            description="Provides industry risk analytics from BLS injury rates and NAICS data.",
+            plugins=[self.industry_analytics_plugin],
+        )
+
+        # ExperienceAgent - 🤝 Zone 2 incidents, documents (PII-protected)
+        experience_agent_definition = await self.client.agents.get_agent(self.agent_ids["EXPERIENCE_AGENT_ID"])
+        experience_agent = AzureAIAgent(
+            client=self.client,
+            definition=experience_agent_definition,
+            description="Manages incident records and generates OSHA forms (Zone 2, PII-protected).",
+            plugins=[self.incident_management_plugin, self.document_generation_plugin],
+        )
+
+        print("\n✅ Agents initialized successfully:")
+        print(f"   TranslationAgent: {translation_agent.id}")
+        print(f"   TriageAgent: {triage_agent.id}")
+        print(f"   Lumi: {lumi_agent.id}")
+        print(f"   📚 SciencesAgent: {sciences_agent.id}")
+        print(f"   ⚖️ GovernanceAgent: {governance_agent.id}")
+        print(f"   📊 AnalyticsAgent: {analytics_agent.id}")
+        print(f"   🤝 ExperienceAgent: {experience_agent.id}")
+        print("=" * 60)
+
+        return [
+            translation_agent,
+            triage_agent,
+            lumi_agent,
+            sciences_agent,
+            governance_agent,
+            analytics_agent,
+            experience_agent
+        ]
 
     async def create_agent_group_chat(self) -> None:
-        """
-        Create an agent group chat with the specified chat ID after all agents have been initialized.
-        This method initializes the agents and sets up the agent group chat with custom selection and termination strategies
-        """
+        """Create the agent group chat with custom orchestration manager."""
         created_agents = await self.initialize_agents()
-        print("Agents initialized:", [agent.name for agent in created_agents])
+        print("Agents in group chat:", [agent.name for agent in created_agents])
 
         self.orchestration = GroupChatOrchestration(
             members=created_agents,
             manager=CustomGroupChatManager(),
         )
 
-        print("Agent group chat created successfully.")
+        print("✅ IRIS Symphony agent group chat created successfully.")
 
-    async def process_message(self, task_content: str) -> str:
+    async def process_message(self, task_content: str) -> tuple[str, bool]:
         """
-        Process a message in the agent group chat.
-        This method creates a new agent group chat and processes the message.
+        Process a message through the IRIS Symphony orchestration.
+        
+        Args:
+            task_content: JSON string with query and language info
+            
+        Returns:
+            Tuple of (response_text, need_more_info)
         """
         retry_count = 0
         last_exception = None
         need_more_info = False
 
-        # Use retry logic to handle potential errors during chat invocation
         while retry_count < self.max_retries:
-            print(f"\n[RETRY ATTEMPT {retry_count}] Starting new runtime...")
+            print(f"\n[ATTEMPT {retry_count + 1}/{self.max_retries}] Starting orchestration...")
             runtime = InProcessRuntime()
             runtime.start()
 
@@ -348,16 +441,22 @@ class SemanticKernelOrchestrator:
                 try:
                     # Timeout to avoid indefinite hangs
                     value = await orchestration_result.get(timeout=120)
-                    print(f"\n***** Result *****\n{value.content}")
+                    print(f"\n{'=' * 40}\nFinal Result:\n{value.content}\n{'=' * 40}")
 
                     final_response = json.loads(value.content)
+                    final_answer = final_response['response']['final_answer']
+                    need_more_info = final_response['response'].get('need_more_info', False)
+                    
+                    print(f"[SYSTEM]: Final answer delivered, need_more_info={need_more_info}")
+                    return final_answer, need_more_info
 
-                    print("[SYSTEM]: Final response is ", final_response['response']['final_answer'])
-                    need_more_info = final_response['response']['need_more_info']
-                    return final_response['response']['final_answer'], need_more_info
+                except asyncio.TimeoutError:
+                    print(f"[TIMEOUT]: Orchestration timed out after 120 seconds")
+                    last_exception = {"type": "timeout", "message": "Orchestration timed out"}
+                    retry_count += 1
 
                 except Exception as e:
-                    print(f"[EXCEPTION]: Orchestration failed with exception: {e}")
+                    print(f"[EXCEPTION]: Orchestration failed: {e}")
                     last_exception = {"type": "exception", "message": str(e)}
                     retry_count += 1
 
@@ -365,23 +464,26 @@ class SemanticKernelOrchestrator:
                 try:
                     await runtime.stop_when_idle()
                 except Exception as e:
-                    print(f"[SHUTDOWN ERROR]: Runtime failed to shut down cleanly: {e}")
+                    print(f"[SHUTDOWN ERROR]: Runtime cleanup failed: {e}")
 
-            # Short delay before retry
             await asyncio.sleep(1)
 
-        if last_exception:
-            return {
-                "error": f"An error occurred: {last_exception}"
-            }, need_more_info
+        # All retries exhausted
+        print(f"[FAILURE]: Max retries ({self.max_retries}) reached.")
+        return {"error": f"Orchestration failed: {last_exception}"}, need_more_info
 
 
-def format_agent_response(response):
+# =============================================================================
+# UTILITY FUNCTIONS
+# =============================================================================
+
+def format_agent_response(response: ChatMessageContent) -> str:
+    """Pretty-print agent response for debugging."""
+    if response is None:
+        return ""
     try:
-        # Pretty print the JSON response
         formatted_content = json.dumps(json.loads(response.content), indent=2)
-        print(f"[{response.name if response.name else 'USER'}]: \n{formatted_content}\n")
+        print(f"[{response.name if response.name else 'USER'}]:\n{formatted_content}\n")
     except json.JSONDecodeError:
-        # Fallback to regular print if content is not JSON
-        print(f"[{response.name}]: {response.content}\n")
-    return response.content
+        print(f"[{response.name if response.name else 'USER'}]: {response.content}\n")
+    return response.content if response else ""

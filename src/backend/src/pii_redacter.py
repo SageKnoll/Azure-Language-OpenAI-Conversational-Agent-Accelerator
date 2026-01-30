@@ -8,7 +8,7 @@ from utils import get_azure_credential
 """
 Azure AI Language PII recognition, redaction, and reconstruction.
 """
-
+PII_FAIL_CLOSED = os.environ.get("PII_FAIL_CLOSED", "true").lower() == "true"
 CATEGORIES = os.environ.get("PII_CATEGORIES", "").upper().split(",")
 CONFIDENCE_THRESHOLD = float(os.environ.get("PII_CONFIDENCE_THRESHOLD", "0.5"))
 TA_CLIENT = TextAnalyticsClient(
@@ -70,7 +70,9 @@ def recognize(
     )
     result = response[0]
     if result.is_error:
-        return []
+        if PII_FAIL_CLOSED:
+            raise RuntimeError(f"PII recognition failed (fail-closed): {result.error}")
+        return False
 
     # Filter based on confidence and category:
     mapping = dict()

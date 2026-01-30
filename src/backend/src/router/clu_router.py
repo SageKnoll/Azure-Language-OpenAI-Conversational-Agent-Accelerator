@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+# Modified for IRIS Symphony - OSHA Recordkeeping
 import os
 import logging
 from typing import Callable
@@ -11,10 +12,10 @@ _logger = logging.getLogger(__name__)
 
 def create_clu_router() -> Callable[[str, str, str], dict]:
     """
-    Create CLU runtime routing function.
+    Create CLU runtime routing function for OSHA recordkeeping intents.
     """
-    project_name = os.environ['CLU_PROJECT_NAME']
-    deployment_name = os.environ['CLU_DEPLOYMENT_NAME']
+    project_name = os.environ.get('CLU_PROJECT_NAME', 'sagevia-osha-clu')
+    deployment_name = os.environ.get('CLU_DEPLOYMENT_NAME', 'production')
     endpoint = os.environ['LANGUAGE_ENDPOINT']
     credential = get_azure_credential()
     client = ConversationAnalysisClient(endpoint, credential)
@@ -82,9 +83,17 @@ def parse_response(
     response: dict
 ) -> dict:
     """
-    Parse CLU runtime response.
+    Parse CLU runtime response for OSHA intents.
+    
+    OSHA Intents:
+    - RecordabilityQuestion
+    - FirstAidVsMedical
+    - DaysAwayCalculation
+    - IndustryRiskProfile
+    - FormGeneration
+    - DefinitionLookup
     """
-    confidence_threshold = float(os.environ.get("CLU_CONFIDENCE_THRESHOLD", "0.5"))
+    confidence_threshold = float(os.environ.get("CLU_CONFIDENCE_THRESHOLD", "0.7"))
     prediction = response["result"]["prediction"]
     confidence = prediction["intents"][0]["confidenceScore"]
     intent = prediction["topIntent"]

@@ -1,0 +1,65 @@
+using './main.bicep'
+
+// ============ General ============
+param suffix = 'sagevia-osha-dev'
+param location = 'centralus'
+
+// ============ Container Apps Environment ============
+// Reference your existing environment
+param container_apps_environment_name = 'cae-sagevia-dev'
+param container_apps_environment_rg = 'rg-sagevia-dev'
+
+// ============ GPT Model ============
+param gpt_model_name = 'gpt-4o'
+param gpt_deployment_capacity = 30
+param gpt_deployment_type = 'GlobalStandard'
+
+// ============ Embedding Model ============
+param embedding_model_name = 'text-embedding-3-large'
+param embedding_deployment_capacity = 30
+param embedding_deployment_type = 'Standard'
+param embedding_model_dimensions = 3072
+
+// ============ Language Projects (OSHA) ============
+param clu_project_name = 'sagevia-osha-clu'
+param clu_deployment_name = 'production'
+param clu_confidence_threshold = '0.7'
+
+param cqa_project_name = 'sagevia-osha-cqa'
+param cqa_deployment_name = 'production'
+param cqa_confidence_threshold = '0.8'
+
+param orchestration_project_name = 'sagevia-osha-orchestration'
+param orchestration_deployment_name = 'production'
+param orchestration_confidence_threshold = '0.7'
+
+// ============ PII (Employee data protection) ============
+param pii_enabled = 'true'
+param pii_categories = 'person,organization,address,phonenumber'
+param pii_confidence_threshold = '0.7'
+
+// ============ Azure AI Search ============
+param search_index_name = 'sagevia-osha-knowledge-idx'
+
+// ============ Storage ============
+param blob_container_name = 'osha-knowledge-files'
+
+// ============ Router Configuration ============
+param router_type = 'ORCHESTRATION'
+param app_mode = 'SEMANTIC_KERNEL'
+
+// ============ IRIS Symphony Zone 1 APIs ============
+param iris_zone1_ecfr_url = 'https://ca-svo-ecfr-dev.kindcliff-8012a32c.centralus.azurecontainerapps.io'
+param iris_zone1_recordability_url = 'https://ca-svo-recordability-dev.kindcliff-8012a32c.centralus.azurecontainerapps.io'
+param iris_zone1_analytics_url = 'https://ca-svo-analytics-dev.kindcliff-8012a32c.centralus.azurecontainerapps.io'
+
+// ============ IRIS Symphony Zone 2 APIs ============
+// These will be added when Zone 2 is deployed
+param iris_zone2_incidents_url = ''
+param iris_zone2_documents_url = ''
+
+// ============ Container App Settings ============
+param cpu = '0.5'
+param memory = '1Gi'
+param minReplicas = 0
+param maxReplicas = 3

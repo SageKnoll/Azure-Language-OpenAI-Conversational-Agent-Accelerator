@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+# Modified for IRIS Symphony - OSHA Recordkeeping
 import pytest
 import os
 import sys
@@ -11,7 +12,7 @@ from typing import Generator
 """
 This module contains test cases for the chat endpoint of the app with unified orchestration.
 It includes single-turn and multi-turn interactions with parameterized test cases.
-The tests are designed to validate the responses from the chat endpoint based on predefined scenarios.
+The tests are designed to validate the responses from the chat endpoint based on OSHA recordkeeping scenarios.
 
 Test different routing strategies by setting the ROUTER_TYPE environment variable.
 For example:
@@ -30,83 +31,128 @@ Possible values for ROUTER_TYPE:
 # Test cases for the chat endpoint
 SINGLE_TURN_TEST_CASES = [
     {
-        "name": "return_policy",
-        "current_question": "What is the return policy",
+        "name": "first_aid_definition",
+        "current_question": "What is considered first aid?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": [
-            "Contoso Outdoors is proud to offer a 30 day refund policy. Return unopened, unused products within 30 days of purchase to any Contoso Outdoors store for a full refund."
+        "expected_response_contains": [
+            "29 CFR 1904.7(a)",
+            "first aid"
         ]
     },
     {
-        "name": "order_status",
-        "current_question": "What is the status of order 12345?",
+        "name": "recordability_needlestick",
+        "current_question": "Is a needlestick recordable?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": ["Order 12345 has shipped."]
+        "expected_response_contains": [
+            "needlestick",
+            "29 CFR"
+        ]
     },
     {
-        "name": "order_refund",
-        "current_question": "I want to refund order 0984",
+        "name": "recordability_stitches",
+        "current_question": "Employee got stitches, is that recordable?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": ["Refund is still processing for order 0984."]
+        "expected_response_contains": [
+            "stitches",
+            "medical treatment"
+        ]
     },
     {
-        "name": "order_cancel",
-        "current_question": "Please cancel my order 56789",
+        "name": "days_away_counting",
+        "current_question": "Do weekends count as days away?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": ["Order 56789 has successfully been cancelled."]
+        "expected_response_contains": [
+            "calendar days",
+            "weekends"
+        ]
     },
     {
-        "name": "need_more_info_refund",
-        "current_question": "Was I refunded for my order?",
+        "name": "need_more_info_recordability",
+        "current_question": "Is this recordable?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": ["Please specify order ID in order to check refund status."]
+        "expected_response_contains": [
+            "information",
+            "injury"
+        ]
     },
     {
-        "name": "need_more_info_order_status",
-        "current_question": "I want to know the status of my order",
+        "name": "need_more_info_industry",
+        "current_question": "What are my industry's injury rates?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": ["Please specify order ID in order to check order status."]
+        "expected_response_contains": [
+            "NAICS"
+        ]
     },
     {
-        "name": "need_more_info_order_cancel",
-        "current_question": "I want to cancel my order",
+        "name": "form_300a_posting",
+        "current_question": "When do I post the annual summary?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": ["Please specify order ID in order to cancel order."]
+        "expected_response_contains": [
+            "February 1",
+            "April 30"
+        ]
+    },
+    {
+        "name": "record_retention",
+        "current_question": "How long must I keep the 300 log?",
+        "history": [
+            {
+                "role": "",
+                "content": ""
+            }
+        ],
+        "expected_response_contains": [
+            "5 years"
+        ]
+    },
+    {
+        "name": "work_related_definition",
+        "current_question": "What makes an injury work-related?",
+        "history": [
+            {
+                "role": "",
+                "content": ""
+            }
+        ],
+        "expected_response_contains": [
+            "work environment",
+            "29 CFR 1904.5"
+        ]
     }
 ]
 
@@ -158,8 +204,10 @@ def test_single_turn(uvicorn_server: str, test_case: dict):
     assert response.status_code == 200, f"Expected status 200, got {response.status_code}"
     data = response.json()
 
-    # Verify response
-    assert data["messages"] == test_case["expected_response"], (
-        f"Response mismatch for test '{test_case['name']}'. "
-        f"Expected: {test_case['expected_response']}, Actual: {data['messages']}"
-    )
+    # Verify response contains expected elements (not exact match for regulatory content)
+    response_text = " ".join(data.get("messages", [])).lower()
+    for expected in test_case["expected_response_contains"]:
+        assert expected.lower() in response_text, (
+            f"Response for test '{test_case['name']}' missing expected content: '{expected}'. "
+            f"Actual response: {data.get('messages')}"
+        )

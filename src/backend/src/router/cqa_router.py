@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+from ast import Add
 import os
 import logging
 from typing import Callable
@@ -13,8 +14,8 @@ def create_cqa_router() -> Callable[[str, str, str], dict]:
     """
     Create CQA runtime routing function.
     """
-    project_name = os.environ['CQA_PROJECT_NAME']
-    deployment_name = os.environ['CQA_DEPLOYMENT_NAME']
+    project_name = os.environ.get('CQA_PROJECT_NAME', 'sagevia-osha-cqa')
+    deployment_name = os.environ.get('CQA_DEPLOYMENT_NAME', 'production')
     endpoint = os.environ['LANGUAGE_ENDPOINT']
     credential = get_azure_credential()
     client = QuestionAnsweringClient(endpoint, credential)
@@ -57,7 +58,7 @@ def parse_response_sdk(
     """
     Parse CQA runtiem response from SDK.
     """
-    confidence_threshold = float(os.environ.get("CQA_CONFIDENCE_THRESHOLD", "0.5"))
+    confidence_threshold = float(os.environ.get("CQA_CONFIDENCE_THRESHOLD", "0.8"))
     top_answer = response.answers[0]
     confidence = top_answer.confidence
     answer = top_answer.answer
@@ -94,7 +95,7 @@ def parse_response(
     """
     Parse CQA runtime response (JSON output).
     """
-    confidence_threshold = float(os.environ.get("CQA_CONFIDENCE_THRESHOLD", "0.5"))
+    confidence_threshold = float(os.environ.get("CQA_CONFIDENCE_THRESHOLD", "0.8"))
     top_answer = response["answers"][0]
     confidence = top_answer["confidenceScore"]
     answer = top_answer["answer"]

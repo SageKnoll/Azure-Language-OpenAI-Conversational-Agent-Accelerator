@@ -1,5 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
+# Modified for IRIS Symphony - OSHA Recordkeeping
 import pytest
 import os
 import sys
@@ -11,7 +12,7 @@ from typing import Generator
 """
 This module contains test cases for the chat endpoint of the app with Semantic Kernel orchestration.
 It includes single-turn and multi-turn interactions with parameterized test cases.
-The tests are designed to validate the responses from the chat endpoint based on predefined scenarios.
+The tests are designed to validate the responses from the chat endpoint based on OSHA recordkeeping scenarios.
 
 Launch this test suite using pytest:
 cd src/backend/src/
@@ -21,253 +22,233 @@ pytest test/test_sk_chat.py -s -v
 # Test cases for the chat endpoint
 SINGLE_TURN_TEST_CASES = [
     {
-        "name": "return_policy",
-        "current_question": "What is the return policy",
+        "name": "first_aid_definition",
+        "current_question": "What is considered first aid under OSHA?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": [
-            "Contoso Outdoors is proud to offer a 30 day refund policy. Return unopened, unused products within 30 days of purchase to any Contoso Outdoors store for a full refund."
+        "expected_response_contains": [
+            "29 CFR 1904.7(a)",
+            "first aid"
         ]
     },
     {
-        "name": "order_status",
-        "current_question": "What is the status of order 12345?",
+        "name": "recordability_with_details",
+        "current_question": "Employee got 3 stitches for a cut on their hand",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": ["Order 12345 is shipped and will arrive in 2-3 days."]
+        "expected_response_contains": [
+            "stitches",
+            "medical treatment"
+        ]
     },
     {
-        "name": "order_refund",
-        "current_question": "I want to refund order 0984",
+        "name": "days_away_counting",
+        "current_question": "How do I count days away from work?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": ["Refund for order 0984 has been processed successfully."]
+        "expected_response_contains": [
+            "calendar days",
+            "29 CFR 1904.7"
+        ]
     },
     {
-        "name": "order_cancel",
-        "current_question": "Please cancel my order 56789",
+        "name": "industry_risk_with_naics",
+        "current_question": "What are the injury rates for NAICS 238220?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": ["Cancellation for order 56789 has been processed successfully."]
+        "expected_response_contains": [
+            "238220",
+            "TCIR"
+        ]
     },
     {
-        "name": "need_more_info_refund",
-        "current_question": "Was I refunded for my order?",
+        "name": "need_more_info_recordability",
+        "current_question": "Is this recordable?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": ["Please provide more information about your order so I can better assist you."]
+        "expected_response_contains": [
+            "more information",
+            "injury"
+        ]
     },
     {
-        "name": "need_more_info_order_status",
-        "current_question": "I want to know the status of my order",
+        "name": "need_more_info_industry",
+        "current_question": "What are my industry injury rates?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": ["Please provide more information about your order so I can better assist you."]
+        "expected_response_contains": [
+            "NAICS"
+        ]
     },
     {
-        "name": "need_more_info_order_cancel",
-        "current_question": "I want to cancel my order",
+        "name": "form_300a_posting",
+        "current_question": "When do I need to post the 300A?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": ["Please provide more information about your order so I can better assist you."]
+        "expected_response_contains": [
+            "February 1",
+            "April 30"
+        ]
     },
     {
-        "name": "spanish_refund",
-        "current_question": "Quiero un reembolso por mi pedido 091428",
+        "name": "record_retention",
+        "current_question": "How long do I keep OSHA records?",
         "history": [
             {
                 "role": "",
                 "content": ""
             }
         ],
-        "expected_response": ["Reembolso por pedido 091428 se ha procesado con éxito."]
+        "expected_response_contains": [
+            "5 years",
+            "29 CFR 1904.33"
+        ]
     }
 ]
 
 
 MULTI_TURN_TEST_CASES = [
     {
-        "name": "multi_turn_order_status",
+        "name": "multi_turn_recordability",
         "sequence": [
             {
-                "current_question": "What is the status of my order?",
+                "current_question": "Is this injury recordable?",
                 "history": [
                     {
                         "role": "",
                         "content": ""
                     }
                 ],
-                "expected_response": ["Please provide more information about your order so I can better assist you."]
+                "expected_response_contains": ["more information", "injury"]
             },
             {
-                "current_question": "My order number is 12345",
+                "current_question": "Employee cut their hand and received 4 stitches",
                 "history": [
                     {
                         "role": "User",
-                        "content": "What is the status of my order?"
+                        "content": "Is this injury recordable?"
                     },
                     {
                         "role": "System",
-                        "content": "Please provide more information about your order so I can better assist you."
+                        "content": "To evaluate recordability criteria, I need more information about the incident. What type of injury or illness occurred, and what treatment was provided?"
                     }
                 ],
-                "expected_response": ["Order 12345 is shipped and will arrive in 2-3 days."]
+                "expected_response_contains": ["stitches", "medical treatment", "29 CFR"]
             }
         ]
     },
     {
-        "name": "multi_turn_order_refund",
+        "name": "multi_turn_industry_risk",
         "sequence": [
             {
-                "current_question": "I want to refund my order",
+                "current_question": "How does my industry compare for injuries?",
                 "history": [
                     {
                         "role": "",
                         "content": ""
                     }
                 ],
-                "expected_response": ["Please provide more information about your order so I can better assist you."]
+                "expected_response_contains": ["NAICS"]
             },
             {
-                "current_question": "My order number is 0984",
+                "current_question": "My NAICS code is 236220",
                 "history": [
                     {
                         "role": "User",
-                        "content": "I want to refund my order"
+                        "content": "How does my industry compare for injuries?"
                     },
                     {
                         "role": "System",
-                        "content": "Please provide more information about your order so I can better assist you."
+                        "content": "To provide industry risk data, I need your NAICS code."
                     }
                 ],
-                "expected_response": ["Refund for order 0984 has been processed successfully."]
+                "expected_response_contains": ["236220", "TCIR"]
             }
         ]
     },
     {
-        "name": "multi_turn_order_cancel",
+        "name": "multi_turn_first_aid_clarification",
         "sequence": [
             {
-                "current_question": "I want to cancel my order",
+                "current_question": "We gave the employee a bandage, is that first aid?",
                 "history": [
                     {
                         "role": "",
                         "content": ""
                     }
                 ],
-                "expected_response": ["Please provide more information about your order so I can better assist you."]
+                "expected_response_contains": ["first aid", "29 CFR 1904.7"]
             },
             {
-                "current_question": "My order number is 56789",
+                "current_question": "What if they also got a tetanus shot?",
                 "history": [
                     {
                         "role": "User",
-                        "content": "I want to cancel my order"
+                        "content": "We gave the employee a bandage, is that first aid?"
                     },
                     {
                         "role": "System",
-                        "content": "Please provide more information about your order so I can better assist you."
+                        "content": "Bandages and wound coverings are listed as first aid treatments under 29 CFR 1904.7(a)."
                     }
                 ],
-                "expected_response": ["Cancellation for order 56789 has been processed successfully."]
+                "expected_response_contains": ["tetanus", "first aid"]
             }
         ]
     },
     {
-        "name": "multi_turn_spanish_refund",
+        "name": "multi_turn_form_generation",
         "sequence": [
             {
-                "current_question": "Quiero un reembolso por mi pedido",
+                "current_question": "I need to fill out the OSHA log",
                 "history": [
                     {
                         "role": "",
                         "content": ""
                     }
                 ],
-                "expected_response": ["Por favor, proporcione más información sobre su pedido para que pueda ayudarle mejor."]
+                "expected_response_contains": ["Form 300"]
             },
             {
-                "current_question": "Mi número de pedido es 091428",
+                "current_question": "Yes, I need Form 300 for 2025",
                 "history": [
                     {
                         "role": "User",
-                        "content": "Quiero un reembolso por mi pedido"
+                        "content": "I need to fill out the OSHA log"
                     },
                     {
                         "role": "System",
-                        "content": "Por favor, proporcione más información sobre su pedido para que pueda ayudarle mejor."
+                        "content": "I can help with Form 300 (Log of Work-Related Injuries and Illnesses). Which year do you need?"
                     }
                 ],
-                "expected_response": ["Reembolso por pedido 091428 se ha procesado con éxito."]
-            }
-        ]
-    },
-    {
-        "name": "multi_turn_english_and_spanish",
-        "sequence": [
-            {
-                "current_question": "What is the return policy?",
-                "history": [
-                    {
-                        "role": "",
-                        "content": ""
-                    }
-                ],
-                "expected_response": [
-                    "Contoso Outdoors is proud to offer a 30 day refund policy. Return unopened, unused products within 30 days of purchase to any Contoso Outdoors store for a full refund."
-                ]
-            },
-            {
-                "current_question": "Quiero cancelar mi pedido",
-                "history": [
-                    {
-                        "role": "",
-                        "content": ""
-                    }
-                ],
-                "expected_response": ["Por favor, proporcione más información sobre su pedido para que pueda ayudarle mejor."]
-            },
-            {
-                "current_question": "El numero de mi pedido es 12345",
-                "history": [
-                    {
-                        "role": "User",
-                        "content": "Quiero cancelar mi pedido"
-                    },
-                    {
-                        "role": "System",
-                        "content": "Por favor, proporcione más información sobre su pedido para que pueda ayudarle mejor."
-                    }
-                ],
-                "expected_response": ["La cancelación del pedido 12389798457 se ha procesado correctamente."]
+                "expected_response_contains": ["2025", "incident"]
             }
         ]
     }
@@ -321,11 +302,13 @@ def test_single_turn(uvicorn_server: str, test_case: dict):
     assert response.status_code == 200, f"Expected status 200, got {response.status_code}"
     data = response.json()
 
-    # Verify response
-    assert data["messages"] == test_case["expected_response"], (
-        f"Response mismatch for test '{test_case['name']}'. "
-        f"Expected: {test_case['expected_response']}, Actual: {data['messages']}"
-    )
+    # Verify response contains expected elements (not exact match for regulatory content)
+    response_text = " ".join(data.get("messages", [])).lower()
+    for expected in test_case["expected_response_contains"]:
+        assert expected.lower() in response_text, (
+            f"Response for test '{test_case['name']}' missing expected content: '{expected}'. "
+            f"Actual response: {data.get('messages')}"
+        )
 
 
 # Test the chat endpoint with a multi-turn conversation
@@ -344,8 +327,10 @@ def test_multi_turn(uvicorn_server: str, test_case: dict):
         assert response.status_code == 200, f"Expected status 200, got {response.status_code}"
         data = response.json()
 
-        # Verify response
-        assert data["messages"] == step["expected_response"], (
-            f"Response mismatch for test '{test_case['name']}'. "
-            f"Expected: {step['expected_response']}, Actual: {data['messages']}"
-        )
+        # Verify response contains expected elements
+        response_text = " ".join(data.get("messages", [])).lower()
+        for expected in step["expected_response_contains"]:
+            assert expected.lower() in response_text, (
+                f"Response for test '{test_case['name']}' missing expected content: '{expected}'. "
+                f"Actual response: {data.get('messages')}"
+            )
